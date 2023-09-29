@@ -65,4 +65,4 @@ yarn-error.log
 # testing
 /coverage
 
-request/config.js
+requests/config.js
