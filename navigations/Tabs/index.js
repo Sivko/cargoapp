@@ -32,7 +32,7 @@ export default function Tabs() {
       <Tab.Screen name="Принять места" component={Stack1} />
       <Tab.Screen name="Сканировать рейсы" component={Stack2} />
       <Tab.Screen name="Настройки" component={Stack3} />
-      <Tab.Screen name="Настройки2" component={Stack4} />
+      {/* <Tab.Screen name="Настройки2" component={Stack4} /> */}
     </Tab.Navigator>
   );
 }

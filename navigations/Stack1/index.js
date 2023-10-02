@@ -15,6 +15,8 @@ import Invoices from "@/screens/screen1/Invoices";
 import invocesToUploadStore from "@/stores/invocesToUploadStore";
 import loadingStore from "@/stores/loadingStore";
 import loggerStore from "@/stores/loggerStore";
+import logginStore from "@/stores/logginStore";
+
 // import val from "@/requests/upload/uploadInvocesSlots";
 const SettingsStack = createNativeStackNavigator();
 
@@ -23,6 +25,7 @@ export function Stack1() {
     invocesToUploadStore();
   const { loading, setLoading } = loadingStore();
   const { setLoggerStore } = loggerStore();
+  const { user } = logginStore();
 
   return (
     <SettingsStack.Navigator>
@@ -47,6 +50,7 @@ export function Stack1() {
                   setLoggerStore,
                   resetStorageInvocesToUpload,
                   setLoading,
+                  user
                 });
               }}
             />

@@ -6,6 +6,9 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   View,
+  Image,
+  TextInput,
+  ScrollView,
 } from "react-native";
 import { SwipeListView } from "react-native-swipe-list-view";
 
@@ -38,7 +41,9 @@ export default function SlotList({ data, setData, navigation }) {
           <Text>{el.item.index}</Text>
         </View>
         <View style={styles.image}>
-          <AntDesign name="picture" size={70} color="#d3d3d3" />
+          {el.item?.photos && el.item?.photos[0] && (<View style={styles.docItem}>
+            <Image style={styles.preview} source={{ uri: el.item.photos[0].uri }} />
+          </View>) || <AntDesign name="picture" size={70} color="#d3d3d3" />}
         </View>
         <View style={styles.info}>
           <Text>Название: {el.item?.data?.attributes?.name}</Text>
@@ -59,7 +64,7 @@ export default function SlotList({ data, setData, navigation }) {
             ШК: {el.item?.data?.attributes?.customs[fields["barcode"]]}
           </Text>
           <Text>
-            КВ: {!el.item?.invoiceId ? "" : el.item?.invoices.filter(e=> e?.id === el.item?.invoiceId)[0]?.name}
+            КВ: {!el.item?.invoiceId ? "" : el.item?.invoices.filter(e => e?.id === el.item?.invoiceId)[0]?.name}
           </Text>
           {el.item?.data?.attributes?.customs[fields["scanTSD"]] ===
             "Найдено" && (
@@ -169,5 +174,16 @@ const styles = StyleSheet.create({
   },
   info: {
     flexBasis: "50%",
+  },
+  preview: {
+    width: 100,
+    height: 100,
+    // borderRadius: 100,
+  },
+  docItem: {
+    marginTop: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginEnd: 12,
   },
 });

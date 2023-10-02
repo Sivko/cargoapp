@@ -9,23 +9,32 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
+  Image,
 } from "react-native";
+import DocumentPicker, {
+  DirectoryPickerResponse,
+  DocumentPickerResponse,
+  isCancel,
+  isInProgress,
+  types,
+} from 'react-native-document-picker';
 
 // import ImagePickerPreview from '../imagePicker/ImagePickerPreview';
 import { fields } from "@/requests/config";
 
 function SlotIndex({ route }) {
   const [data, setData] = useState(route.params.data);
-  const [length, setLength] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["length"]] || "",);
-  const [width, setWidth] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["width"]] || "",);
-  const [height, setHeight] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["height"]] || "",);
-  const [weight, setWeight] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["weight"]] || "",);
-  const [barcode, setBarcode] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["barcode"]] || "",);
-  const [description, setDescription] = useState(route.params.data[route.params.index - 1].data?.attributes?.description,);
-  const [transport, setTransport] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["transport"]][0] || "",);
-  const [invoiceId, setInvoiceId] = useState(route.params.data[route.params.index - 1].invoiceId || "",);
-  const [invoces, setInvoices] = useState(route.params.data[route.params.index - 1].invoices || [],);
-  const [uploadStatus, setUploadSatus] = useState(route.params.data[route.params.index - 1].uploadStatus || false,);
+  const [length, setLength] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["length"]] || "");
+  const [width, setWidth] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["width"]] || "");
+  const [height, setHeight] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["height"]] || "");
+  const [weight, setWeight] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["weight"]] || "");
+  const [barcode, setBarcode] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["barcode"]] || "");
+  const [description, setDescription] = useState(route.params.data[route.params.index - 1].data?.attributes?.description);
+  const [transport, setTransport] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["transport"]][0] || "");
+  const [invoiceId, setInvoiceId] = useState(route.params.data[route.params.index - 1].invoiceId || "");
+  const [invoces, setInvoices] = useState(route.params.data[route.params.index - 1].invoices || []);
+  const [uploadStatus, setUploadSatus] = useState(route.params.data[route.params.index - 1].uploadStatus || false);
+  const [photos, setPhotos] = useState(route.params.data[route.params.index - 1].photos || []);
 
   useEffect(() => {
     setData((prev) => {
@@ -39,9 +48,10 @@ function SlotIndex({ route }) {
       slots[route.params.index - 1].data.attributes.customs[fields["transport"]] = transport;
       slots[route.params.index - 1].invoiceId = invoiceId;
       slots[route.params.index - 1].uploadStatus = false;
+      slots[route.params.index - 1].photos = photos;
       return slots;
     });
-  }, [length, width, height, transport, weight, description, barcode, uploadStatus, invoiceId]);
+  }, [length, width, height, transport, weight, description, barcode, uploadStatus, invoiceId, photos]);
 
   function focus(setValue) {
     return function (e) {
@@ -51,14 +61,48 @@ function SlotIndex({ route }) {
     }
   }
 
+  const handleError = () => {
+    if (isCancel(err)) {
+      console.warn('cancelled')
+      // User cancelled the picker, exit any dialogs or menus and move on
+    } else if (isInProgress(err)) {
+      console.warn('multiple pickers were opened, only the last will be considered')
+    } else {
+      throw err
+    }
+  }
+
+  useEffect(() => { console.log(photos) }, [photos])
+
   return (
     <SafeAreaView>
       <ScrollView style={styles.scrollView}>
         <View style={styles.card}>
           {/* <Text>{JSON.stringify(route.params.data[route.params.index - 1].attributes?.customs['custom_114632'])}</Text> */}
           {/* <ImagePickerPreview> */}
-          <AntDesign name="picture" size={124} color="black" />
-          {/* </ImagePickerPreview> */}
+          <ScrollView horizontal={true} style={{ marginBottom: 10, flex: 1 }}>
+            <TouchableOpacity onPress={() => {
+              DocumentPicker.pick({ allowMultiSelection: true, type: types.images }).then((e) => { setPhotos(prev => [...e, ...prev]) }).catch(handleError)
+            }}>
+              <AntDesign name="picture" size={124} color="black" />
+            </TouchableOpacity>
+            {photos[0] && photos.map((e, index) => (<View style={styles.docItem}>
+              <Image style={styles.preview} source={{ uri: e.uri }} />
+              <TouchableOpacity
+                style={styles.delete}
+                onPress={() => setPhotos(prev=>prev.filter((e, i)=>index!==i))}
+              >
+                <AntDesign name="close" size={12} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={photos[index].name.includes('brak_') ? {...styles.status, backgroundColor: '#fc0', opacity: 1} : styles.status}
+                onPress={() => {photos[index].tmpName = "brak_";setPhotos(prev=>{prev[index].name?.includes('brak_') ? prev[index].name=prev[index].name.replace('brak_','') : prev[index].name="brak_"+prev[index].name ; return JSON.parse(JSON.stringify(prev))  })}}
+              >
+                <Text>Брак</Text>
+              </TouchableOpacity>
+            </View>
+            ))}
+          </ScrollView>
           <View style={styles.dimensions}>
             <View style={styles.wrapper}>
               <View style={styles.fieldSet}>
@@ -146,7 +190,7 @@ function SlotIndex({ route }) {
           </View>
           <View style={{ ...styles.wrapper, width: "100%" }}>
             <View style={styles.fieldSet}>
-              <Text style={styles.legend}>Квитанция (ID):</Text>
+              <Text style={styles.legend}>Квитанция:</Text>
               <View style={styles.pickerWrapper}>
                 {invoces.map((e, index) => (
                   <TouchableOpacity
@@ -254,6 +298,33 @@ const styles = StyleSheet.create({
   picker: {
     margin: 5,
     padding: 10,
+  },
+  delete: {
+    backgroundColor: '#f66',
+    borderRadius: 100,
+    padding: 6,
+    position: 'absolute',
+    end: -6,
+    top: 10,
+  },
+  status: {
+    backgroundColor: '#d3d3d3',
+    padding: 6,
+    position: 'absolute',
+    left: 0,
+    opacity: 0.7,
+    bottom: 12,
+  },
+  preview: {
+    width: 100,
+    height: 100,
+    // borderRadius: 100,
+  },
+  docItem: {
+    marginTop: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginEnd: 12,
   },
 });
 

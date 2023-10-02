@@ -37,6 +37,7 @@ local.properties
 # node.js
 #
 node_modules/
+requests/
 npm-debug.log
 yarn-error.log
 
@@ -65,4 +66,3 @@ yarn-error.log
 # testing
 /coverage
 
-requests/config.js

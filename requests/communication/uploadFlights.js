@@ -76,13 +76,39 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
               },
             },
           };
-          // console.log(tmp.data.relationships, "FFFFF")
           const res = await axios.post(url, { data: tmp.data }, config(user?.token)).catch(e => setLogsData({ "error": e }));
-          // console.log("Добавлено", res);
         }
-        scanItems[m].slots[i].uploadStatus = true;
-        // tmp.status = true;
+        /* загрузка Фото */
+        if (items[i].photos) {
+          const photosSlot = items[i].photos.filter(e => !e.upload);
+          console.log(items[i].photos, "items[i].photos");
+          for (let f in photosSlot) {
+            const tokenFile = await axios.post('https://upload.app.salesap.ru/api/v1/files', {
+              "type": "files",
+              "data": {
+                "filename": photosSlot[f].name,
+                "resource-type": "deals",
+                "resource-id": Number(tmp.data?.id) || Number(res.data.data.id)
+              }
+            }, config(user?.token)).catch(e => console.log(e.response.data));
+            try {
+              const fields = tokenFile.data.data["form-fields"];
+              let formData = new FormData();
+              for (let key in fields) {
+                if (fields.hasOwnProperty(key)) {
+                  formData.append(key, fields[key])
+                }
+              }
+              formData.append("file", photosSlot[f]);
+              const uploadData = await axios.post('https://storage.yandexcloud.net/salesapiens', formData);
+              console.log(uploadData, "Загрузил фото");
 
+            } catch (err) { console.log("Не удалось загрузить", err) }
+            photosSlot[f].upload = true;
+          }
+        }
+        // endUpload
+        scanItems[m].slots[i].uploadStatus = true;
         resetStoragescanItems(scanItems);
       }
     }
