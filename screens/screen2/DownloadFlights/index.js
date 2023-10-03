@@ -69,14 +69,14 @@ export default function DownloadFlights({ navigation }) {
               onLongPress={() => hendlerCard(index, scanItems)}
               delayLongPress={500}
             >
-              <Text style={{width: 20}}>{index + 1}</Text>
-              <View style={{width: 200}}> 
+              <Text style={{width: '5%'}}>{index + 1}</Text>
+              <View style={{width: '40%'}}> 
                 <Text>ID: {e.flight.data?.id}</Text>
                 <Text numberOfLines={1}>{e.flight.data.attributes.name}</Text>
                 {/* <Text>Код. кл: {e.flight.data?.attributes?.customs[fields["clientCode"]]}</Text> */}
                 <Text>Транспорт: {e.flight.data?.attributes?.customs[fields["transport"]]}</Text>
               </View>
-              <View style={{width: 120}}>
+              <View style={{width: '40%'}}>
                 <Text>Кол-во мест: {e?.slots?.length}</Text>
                 <Text>Ошибок: {e?.slots?.filter((el) => el.data?.attributes?.customs[fields["scanTSD"]] == "Ошибка")?.length}</Text>
                 <Text>Статус: {e?.flight.data?.attributes?.customs[fields["scanTSD"]]}</Text>

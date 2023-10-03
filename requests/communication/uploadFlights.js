@@ -125,8 +125,8 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
         // endUpload
         // console.log("AAAA")
         // console.log("slotId", slotId)
-        scanItems[m].slots[i].data.id = slotId;
         scanItems[m].slots[i].uploadStatus = true;
+        scanItems[m].slots[i].data.id = slotId;
         resetStoragescanItems(scanItems);
       }
     }
