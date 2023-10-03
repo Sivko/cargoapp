@@ -44,6 +44,7 @@ export default function SlotList({ data, setData, navigation }) {
           {el.item?.photos && el.item?.photos[0] && (<View style={styles.docItem}>
             <Image style={styles.preview} source={{ uri: el.item.photos[0].fileCopyUri }} />
           </View>) || <AntDesign name="picture" size={70} color="#d3d3d3" />}
+          <Text style={{fontSize: 8, textAlign: 'right', paddingRight: 20}}>{el.item?.data?.id}</Text>
         </View>
         <View style={styles.info}>
           <Text>Название: {el.item?.data?.attributes?.name}</Text>
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
   card: {
     justifyContent: "space-between",
     flexDirection: "row",
-    height: 112,
+    minHeight: 112,
     alignItems: "center",
     borderBottomColor: "#f1f1f1",
     borderStyle: "solid",

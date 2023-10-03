@@ -26,7 +26,7 @@ export function ScannerScreen({ navigation, route }) {
       tmp[Number(index)].slots = JSON.parse(JSON.stringify(slot));
       resetStoragescanItems(tmp);
       // debugger
-      console.log(tmp, "TTTMP", index);
+      // console.log(tmp, "TTTMP", index);
     }
   }, [slot, route]);
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import config, { fields, stagesCategories, stagesFirstId } from "@/requests/config";
-import { setLogsData } from "../local/getSetLogs";
+import { setLogsData } from "@/requests/local/getSetLogs";
 
 const slotToUpload = {
   data: {
@@ -35,7 +35,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
       for (let i in items) {
         // console.log("Upload", items[i]);
         let tmp = JSON.parse(JSON.stringify(slotToUpload));
-        console.log("items", items[i])
+        // console.log("items", items[i])
         tmp.data.id = items[i]?.data?.id;
         tmp.data.attributes.name = items[i].data.attributes.name;
         tmp.data.attributes.description = items[i].data.attributes.description;
@@ -54,34 +54,43 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
         // console.log(tmp);
         // console.log(scanItems[m])
         // return
-        if (tmp.data?.id) {
+        let slotId = tmp?.data?.id
+        if (slotId) {
           console.log("обновление");
           const url = `https://app.salesap.ru/api/v1/deals/${tmp.data.id}`;
-          const res = await axios.put(url, { data: tmp.data }, config(user?.token)).catch(e => setLogsData({ "error": e }));
+          const res = await axios.put(url, { data: tmp.data }, config(user?.token)).catch(e => { setLogsData({ type: "error", status: e }); console.log(e, "error") });
           // console.log("Обновлено", res);
         } else {
-          console.log("добавление");
-          const url = `https://app.salesap.ru/api/v1/deals`;
-          tmp.data.relationships = {
-            deals: {
-              data: [{
-                type: "deals",
-                id: scanItems[m].slots[i].invoiceId || scanItems[m].slots[0].invoiceId,
-              }]
-            },
-            stage: {
-              data: {
-                type: "deal-stages",
-                id: stagesFirstId.slot,
+          // try {
+            console.log("добавление");
+            const url = `https://app.salesap.ru/api/v1/deals`;
+            tmp.data.relationships = {
+              deals: {
+                data: [{
+                  type: "deals",
+                  id: scanItems[m]?.slots[i]?.invoiceId || scanItems[m]?.slots[0]?.invoices[0].id,
+                }]
               },
-            },
-          };
-          const res = await axios.post(url, { data: tmp.data }, config(user?.token)).catch(e => setLogsData({ "error": e }));
+              stage: {
+                data: {
+                  type: "deal-stages",
+                  id: stagesFirstId.slot,
+                },
+              },
+            };            
+            const res = await axios.post(url, { data: tmp.data }, config(user?.token)).catch(e => setLogsData({ type: "error", status: e }));
+            console.log(res.status, scanItems[m]?.slots[0]?.invoices[0].id);
+            if (res.status > 400) {
+              setLogsData({ type: "error", status: res.data })
+              continue;
+            }
+            slotId = res.data.data.id;
+          // } catch (err) {console.log("не удалось добавить", err); setLogsData({ type: "error", status: err })}
         }
         /* загрузка Фото */
         if (items[i].photos) {
           const photosSlot = items[i].photos.filter(e => !e.upload);
-          console.log(items[i].photos, "items[i].photos");
+          // console.log(items[i].photos, "items[i].photos");
           for (let f in photosSlot) {
             console.log(photosSlot[f], "photosSlot[f]")
             const tokenFile = await axios.post('https://upload.app.salesap.ru/api/v1/files', {
@@ -89,7 +98,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
               "data": {
                 "filename": photosSlot[f].name,
                 "resource-type": "deals",
-                "resource-id": Number(tmp.data?.id) || Number(res.data.data.id)
+                "resource-id": Number(tmp.data?.id) || Number(slotId)
               }
             }, config(user?.token)).catch(e => console.log(e));
             try {
@@ -102,13 +111,14 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
               }
               formData.append("file", photosSlot[f]);
               const uploadData = await axios.post('https://storage.yandexcloud.net/salesapiens', formData);
-              console.log(uploadData, "Загрузил фото");
-
-            } catch (err) { console.log("Не удалось загрузить", err) }
+            } catch (err) { setLogsData({ type: "error", status: { msg: "Не удалось загрузить фото", err } }) }
             photosSlot[f].upload = true;
           }
         }
         // endUpload
+        // console.log("AAAA")
+        // console.log("slotId", slotId)
+        scanItems[m].slots[i].data.id = slotId;
         scanItems[m].slots[i].uploadStatus = true;
         resetStoragescanItems(scanItems);
       }

@@ -16,6 +16,8 @@ import invocesToUploadStore from "@/stores/invocesToUploadStore";
 import loadingStore from "@/stores/loadingStore";
 import loggerStore from "@/stores/loggerStore";
 import logginStore from "@/stores/logginStore";
+import CameraRN from "@/components/CameraRN";
+
 
 // import val from "@/requests/upload/uploadInvocesSlots";
 const SettingsStack = createNativeStackNavigator();
@@ -57,6 +59,7 @@ export function Stack1() {
           ),
         })}
       />
+      <SettingsStack.Screen name="Камера" component={CameraRN} />
     </SettingsStack.Navigator>
   );
 }

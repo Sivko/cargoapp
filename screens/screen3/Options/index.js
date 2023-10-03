@@ -38,25 +38,33 @@ export function Option() {
               removeFlightDeals();
             }}
           /> */}
-          <Text>Пользователь: {user.email} ({user.id})</Text>
-          <Button
-            title="Очистить Логи"
-            onPress={() => {
-              removeLogsData([]);
-              setLogs([]);
-            }}
-          />
-          <Button
-            title="Изменить флаг загрузки"
-            onPress={() => {
-              setLoading(false);
-              alert("Все состояния сброшены");
-            }}
-          />
-          <Button title="Удалить загр. рейсы" onPress={removeStoragescanItems} />
+          <Text style={{marginBottom: 40}}>Пользователь: {user.email} ({user.id})</Text>
+          {/* <View style={styles.btn}>
+            <Button
+              title="Очистить Логи"
+              onPress={() => {
+                removeLogsData([]);
+                setLogs([]);
+              }}
+            />
+          </View> */}
+          <View style={styles.btn}>
+            <Button
+              title="Изменить флаг загрузки"
+              onPress={() => {
+                setLoading(false);
+                alert("Все состояния сброшены");
+              }}
+            />
+          </View>
+          <View style={styles.btn}>
+            <Button title="Удалить загр. рейсы" onPress={removeStoragescanItems} />
+          </View>
+          <View style={styles.btn}>
           <Button title="Выйти" onPress={unloggin} />
-          <Text>Логи:</Text>
-          <Text>{JSON.stringify(logs)}</Text>
+          </View>
+          {/* <Text>Логи:</Text>
+          <Text>{JSON.stringify(logs)}</Text> */}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -70,6 +78,9 @@ const styles = StyleSheet.create({
   scrollView: {
     marginHorizontal: 20,
   },
+  btn: {
+    marginBottom: 10
+  }
 });
 
 export default Option;

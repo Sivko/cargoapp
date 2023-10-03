@@ -53,9 +53,9 @@ function SlotIndex({ route, navigation }) {
     });
   }, [length, width, height, transport, weight, description, barcode, uploadStatus, invoiceId, photos]);
 
-  function focus(setValue) {
-    return function (e) {
-      if (Number(e.target.value) === 0) {
+  function focus(setValue, value) {
+    return function () {
+      if (Number(value) === 0) {
         setValue('')
       }
     }
@@ -71,8 +71,6 @@ function SlotIndex({ route, navigation }) {
       throw err
     }
   }
-
-  useEffect(() => { console.log(photos) }, [photos])
 
   return (
     <SafeAreaView>
@@ -123,7 +121,7 @@ function SlotIndex({ route, navigation }) {
                   style={styles.legendInput}
                   onChangeText={(e) => setLength(e)}
                   value={String(length)}
-                  onFocus={focus(setLength)}
+                  onFocus={focus(setLength, length)}
                 />
               </View>
             </View>
@@ -135,7 +133,7 @@ function SlotIndex({ route, navigation }) {
                   style={styles.legendInput}
                   onChangeText={(e) => setWidth(e)}
                   value={String(width)}
-                  onFocus={focus(setWidth)}
+                  onFocus={focus(setWidth, width)}
                 />
               </View>
             </View>
@@ -147,7 +145,7 @@ function SlotIndex({ route, navigation }) {
                   style={styles.legendInput}
                   onChangeText={(e) => setHeight(e)}
                   value={String(height)}
-                  onFocus={focus(setHeight)}
+                  onFocus={focus(setHeight, height)}
                 />
               </View>
             </View>
@@ -159,7 +157,7 @@ function SlotIndex({ route, navigation }) {
                   style={styles.legendInput}
                   onChangeText={(e) => setWeight(e)}
                   value={String(weight)}
-                  onFocus={focus(setWeight)}
+                  onFocus={focus(setWeight, weight)}
                 />
               </View>
             </View>
@@ -324,7 +322,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     opacity: 0.7,
-    bottom: 12,
+    bottom: 10,
   },
   preview: {
     width: 100,
