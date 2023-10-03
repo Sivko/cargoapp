@@ -197,7 +197,7 @@ function SlotIndex({ route, navigation }) {
               </View>
             </View>
           </View>
-          <View style={{ ...styles.wrapper, width: "100%" }}>
+          {!route.params.data[route.params.index - 1].data?.id && (<View style={{ ...styles.wrapper, width: "100%" }}>
             <View style={styles.fieldSet}>
               <Text style={styles.legend}>Квитанция:</Text>
               <View style={styles.pickerWrapper}>
@@ -217,7 +217,7 @@ function SlotIndex({ route, navigation }) {
                 ))}
               </View>
             </View>
-          </View>
+          </View>)}
           <View style={{ ...styles.wrapper, width: "100%" }}>
             <View style={{ ...styles.fieldSet, minWidth: "100%" }}>
               <Text style={styles.legend}>Примечание</Text>
