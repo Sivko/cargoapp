@@ -21,8 +21,11 @@ import DocumentPicker, {
 
 // import ImagePickerPreview from '../imagePicker/ImagePickerPreview';
 import { fields } from "@/requests/config";
+import ImageView from "react-native-image-viewing";
 
 function SlotIndex({ route, navigation }) {
+  const [indexImageView, setIndexImageView] = useState(null);
+
   const [data, setData] = useState(route.params.data);
   const [length, setLength] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["length"]] || "");
   const [width, setWidth] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["width"]] || "");
@@ -96,7 +99,9 @@ function SlotIndex({ route, navigation }) {
               </TouchableOpacity>
             </View>
             {photos[0] && photos.map((e, index) => (<View style={styles.docItem}>
-              <Image style={styles.preview} source={{ uri: e.fileCopyUri }} />
+              <TouchableOpacity onPress={()=>setIndexImageView(index)}>
+                <Image style={styles.preview} source={{ uri: e.fileCopyUri }} />
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.delete}
                 onPress={() => setPhotos(prev => prev.filter((e, i) => index !== i))}
@@ -110,7 +115,7 @@ function SlotIndex({ route, navigation }) {
                 <Text>Брак</Text>
               </TouchableOpacity>
             </View>
-            )) || (<Text style={{marginTop: 50}}>Не указаны фото с данного ТСД</Text>)} 
+            )) || (<Text style={{ marginTop: 50 }}>Не указаны фото с данного ТСД</Text>)}
           </ScrollView>
           <View style={styles.dimensions}>
             <View style={styles.wrapper}>
@@ -250,6 +255,14 @@ function SlotIndex({ route, navigation }) {
             </TouchableOpacity>
           </View>
         </View>
+
+        <ImageView
+          style={{ flex: 1, backgroundColor: 'black' }}
+          imageIndex={indexImageView}
+          visible={indexImageView === null ? false : true}
+          onRequestClose={() => setIndexImageView(null)}
+          images={photos.map(e => ({ uri: e.fileCopyUri }))}
+        />
       </ScrollView>
     </SafeAreaView>
   );

@@ -15,181 +15,68 @@ import axios from "axios";
 import config from "@/requests/config";
 import logginStore from "@/stores/logginStore";
 import Canvas from 'react-native-canvas';
-var RNFS = require('react-native-fs');
+import RNFS from 'react-native-fs';
 import Marker, { ImageFormat, Position, TextBackgroundType } from "react-native-image-marker"
+import ImageView from "react-native-image-viewing";
 
 
 const Screens = createNativeStackNavigator();
 
 
 function Options() {
-  const { user, loggin } = logginStore();
-  const [photos, setPhotos] = useState([]);
-  const [result, setResult] = useState(null);
-  const [newImage, setNewImage] = useState(null);
 
-  // const getBase64 = async (imageUri) => {
-  //   const filepath = imageUri.split('//')[1];
-  //   const imageUriBase64 = await RNFS.readFile(filepath, 'base64');
-  //   return `data:image/jpeg;base64,${imageUriBase64}`;
-  // }
+  const [file, setFile] = useState(`${RNFS.PicturesDirectoryPath}/file3.jpg`)
+  const [visible, setIsVisible] = useState(false);
 
-  const uploadFiles = async () => {
-    const data = await axios.post('https://upload.app.salesap.ru/api/v1/files', {
-      // const data = await axios.post('https://webhook.site/893b1b20-d021-47ba-b7d1-a4264ef51f86', {
-      "type": "files",
-      "data": {
-        "filename": photos[0].name,
-        "resource-type": "deals",
-        "resource-id": 7637861
+  // useEffect(()=> {console.log(file)},[file]);
+
+  // useEffect(() => {
+  //   RNFS.unlink(`${RNFS.PicturesDirectoryPath}/file3.jpg`)
+  //     .then(() => {
+  //       console.log('FILE DELETED');
+  //     })
+  //     .catch((err) => {
+  //       console.log(err.message);
+  //     });
+  // }, [])
+
+  async function downloadFile() {
+    const res = await RNFS.downloadFile({
+      fromUrl: 'https://app.salesap.ru/documents/3985545/download?expires=1696364957&signature=c3d913411c65bb2e176a0fe164d9e1b92325d8cd46327b2ff585014d8463f808&user_id=77292',
+      toFile: `${RNFS.PicturesDirectoryPath}/file3.jpg`,
+      headers: {
+        Authorization: `Bearer mUYmfdF5Hr0zUC9b3WLmR94p_DH4-GPkdQ42FmBZpv0`,
       }
-    }, config(user?.token)).catch(e => console.log(e.response.data));
-    try {
-      const fields = data.data.data["form-fields"];
-      let formData = new FormData();
-      for (let key in fields) {
-        if (fields.hasOwnProperty(key)) {
-          formData.append(key, fields[key])
-        }
-      }
-      formData.append("file", photos[0]);
-      const uploadData = await axios.post('https://storage.yandexcloud.net/salesapiens', formData);
-      // const uploadData = await axios.post('https://webhook.site/893b1b20-d021-47ba-b7d1-a4264ef51f86', formData);
-      console.log(uploadData, "uploadData");
-    } catch (err) { console.log("Не удалось загрузить") }
-  }
-
-  useEffect(() => {
-    console.log(photos, "photos");
-    console.log(result, "result");
-
-    if (photos[0]?.fileCopyUri) {
-
-      async function tt() {
-        const path = await Marker.markText({
-          backgroundImage: {
-            src: photos[0]?.fileCopyUri,
-          },
-          watermarkTexts: [{
-            text: '\nтакие вот жела',
-            positionOptions: {
-              position: Position.topLeft,
-            },
-            style: {
-              color: '#fff',
-              fontSize: 25,
-              fontName: 'Arial',
-              textBackgroundStyle: {
-                color: '#0000003d',
-              },
-            },
-          }],
-          scale: 1,
-          quality: 100,
-          filename: photos[0].name,
-          saveFormat: ImageFormat.jpg,
-          maxSize: 1000,
-        })
-        console.log(path,"path");
-        setNewImage(path)
-      }
-      tt();
-
-    }
-  }, [photos, result])
-
-
-
-
-  const handleError = () => {
-    if (isCancel(err)) {
-      console.warn('cancelled')
-      // User cancelled the picker, exit any dialogs or menus and move on
-    } else if (isInProgress(err)) {
-      console.warn('multiple pickers were opened, only the last will be considered')
-    } else {
-      throw err
-    }
-  }
-
-
-  takePicture = async () => {
-    if (camera) {
-      const options = { quality: 0.5, base64: true };
-      const data = await camera.takePictureAsync(options);
-      setResult(data)
-      console.log(data);
-    }
-  };
-
-  handleCanvas = (canvas) => {
-    if (canvas && result) {
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = 'purple';
-      ctx.fillRect(0, 0, 200, 200);
-      ctx.drawImage(result.base64, 0, 0, 100, 100);
-    }
+    }).promise.then((response) => {
+      console.log('File downloaded!', response);
+      setFile(`${RNFS.PicturesDirectoryPath}/file3.jpg`)
+    })
   }
 
   return (
-    <View style={styles.container}>
-      <View style={{ marginTop: 0, alignItems: 'center', justifyContent: 'center', marginEnd: 12 }}>
-        {newImage && <Image style={{ width: 200, height: 200, backgroundColor: '#ddd' }} source={{ uri: `file://${newImage}`}} />}
-      </View>
-      <Text style={{ color: '#FFF' }}>CANVAS:</Text>
-      {/* <Canvas ref={handleCanvas} /> */}
-      {/* {photos.map(e => (<View style={{ flex: 1 }} >
-        <View style={{ height: 200, width: '100%', flexDirection: 'row', flexWrap: 'nowrap' }}>
-          <ScrollView horizontal={true} style={{ flex: 1 }}>
-            <Image style={{ height: 'auto', flexBasis: '10%', width: '10%', flex: 1 }} source={{ uri: e.uri }} />
-          </ScrollView>
-        </View>
-      </View>))} */}
-      {result && (<View style={{ flex: 1, width: '100%', height: 100 }}>
-        <Text>Photo:</Text>
-        <Image style={{ flex: 1, width: '100%', height: '100%' }} source={{ uri: result.uri }} />
-        <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
-          <TouchableOpacity onPress={() => { }} style={{ borderRadius: 100, backgroundColor: "#303030", padding: 20 }}>
-            <AntDesign name="check" size={30} color="#d3d3d3" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setResult(null)} style={{ borderRadius: 100, backgroundColor: "#303030", padding: 20 }}>
-            <AntDesign name="close" size={30} color="#d3d3d3" />
-          </TouchableOpacity>
-        </View>
-      </View>)}
-      {/* {!result && (<View style={{ flex: 1, width: '100%', height: 100 }}>
-        <RNCamera
-          ref={ref => {
-            camera = ref;
-          }}
-          style={styles.preview}
-          type={RNCamera.Constants.Type.back}
-          flashMode={RNCamera.Constants.FlashMode.on}
-          androidCameraPermissionOptions={{
-            title: 'Permission to use camera',
-            message: 'We need your permission to use your camera',
-            buttonPositive: 'Ok',
-            buttonNegative: 'Cancel',
-          }}
-        />
-        <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
-          <TouchableOpacity onPress={() => takePicture()} style={{ borderRadius: 100, backgroundColor: "#303030", padding: 20 }}>
-            <AntDesign name="camerao" size={30} color="#d3d3d3" />
-          </TouchableOpacity>
-        </View>
-      </View>)} */}
-      <Button
-        title="open picker for multi file selection"
-        onPress={() => {
-          DocumentPicker.pick({ allowMultiSelection: true, type: types.images, copyTo: 'documentDirectory' }).then(setPhotos).catch(handleError)
-        }}
+    <View style={{ flex: 1 }}>
+      <Button onPress={()=>setIsVisible(true)} title="open" />
+      {/* <Image source={{uri: `file://${RNFS.PicturesDirectoryPath}/file3.jpg`}} style={{flex: 1, width: '100%'}} /> */}
+      {/* <Image source={{uri: `file://${file}`}} style={{flex: 1, width: '100%'}} />
+      <Button title={"downloadFile"} onPress={downloadFile} /> */}
+      {/* <ImageGallery
+        style={{ flex: 1, backgroundColor: 'black' }}
+        images={[
+          { id:1 ,source: { url: `content://${RNFS.PicturesDirectoryPath}/file3.jpg`,  } },
+          { id: 2,source: { url: `content://${RNFS.PicturesDirectoryPath}/file2.jpg`, } },
+        ]}
+      /> */}
+      <ImageView
+        style={{ flex: 1, backgroundColor: 'black' }}
+        imageIndex={1}
+        visible={visible}
+        onRequestClose={() => setIsVisible(false)}
+      
+        images={[
+          { uri: `file://${RNFS.PicturesDirectoryPath}/file3.jpg` },
+          { uri: `file://${RNFS.PicturesDirectoryPath}/file2.jpg` },
+        ]}
       />
-      <Button title="clear" onPress={()=>setNewImage(null)} />
-      <Button
-        title="Upload"
-        onPress={uploadFiles}
-      />
-      {/* <Text selectable>Result: {JSON.stringify(result, null, 2)}</Text> */}
     </View>
   );
 }
@@ -217,6 +104,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     backgroundColor: 'black',
+    width: '90%'
   },
   box: {
     width: 60,

@@ -3,6 +3,7 @@
 import axios from "axios";
 
 import config, { stagesCategories, timeout } from "@/requests/config";
+var RNFS = require('react-native-fs');
 
 // const { idFlightsToDownloads } = scanStore();
 export default async function downloadSlotInFlights({ idFlightsToDownloads, resetStoragescanItems, scanItems, setLoading, user }) {
@@ -33,13 +34,28 @@ export default async function downloadSlotInFlights({ idFlightsToDownloads, rese
               const _slotData = slotData.data.data;
               if (_slotData?.id) {
                 if (!_slotData?.attributes["archived-at"] && !_slotData?.attributes["discarded-at"]) {
-                  tmp.slots = [...tmp.slots, { data: { id: _slotData.id, type: 'deals', attributes: _slotData.attributes }, invoiceId: childrenDeals[n], invoices: childrenDeals2, uploadStatus: false }];
                   // Загрузка фото
                   // https://app.salesap.ru/api/v1/documents?filter[entity_type]=Deal&filter[entity_id]=7504282
-                  const photos = await axios.get(`https://app.salesap.ru/api/v1/documents?filter[entity_type]=Deal&filter[entity_id]=${_slotData.id}`,config(user?.token));
-                  const _photos = photos.data.data.filter((e)=>e.attributes['content-type'].includes('image'))
-                  console.log(_photos, "photos");
+                  let tmpPhotos = [];
+                  const photos = await axios.get(`https://app.salesap.ru/api/v1/documents?filter[entity_type]=Deal&filter[entity_id]=${_slotData.id}`, config(user?.token));
+                  if (photos.data?.data?.length) {
+                    const _photos = photos.data.data.filter((e) => e.attributes['content-type'].includes('image'))
+                    for (let l in _photos) {
+                      console.log("start photo downloads");
+                      const _res = await RNFS.downloadFile({
+                        fromUrl: _photos[l].attributes["download-link"],
+                        toFile: `${RNFS.PicturesDirectoryPath}/${_photos[l].attributes.name}`,
+                        headers: {
+                          Authorization: `Bearer mUYmfdF5Hr0zUC9b3WLmR94p_DH4-GPkdQ42FmBZpv0`,
+                        }
+                      }).promise.then((response) => {
+                        tmpPhotos.push({name: `${_photos[l].attributes.name}`, type: _photos[l].attributes["content-type"], uri: `file://${RNFS.PicturesDirectoryPath}/${_photos[l].attributes.name}`, fileCopyUri: `file://${RNFS.PicturesDirectoryPath}/${_photos[l].attributes.name}`})
+                      })
+                    }
+                    console.log("end formating tmp")
+                  }
                   // Конец Загрузки фото
+                  tmp.slots = [...tmp.slots, {photos: tmpPhotos, data: { id: _slotData.id, type: 'deals', attributes: _slotData.attributes }, invoiceId: childrenDeals[n], invoices: childrenDeals2, uploadStatus: false }];
                   resetStoragescanItems([tmp, ...scanItems.filter((e) => e.flight.data.id !== idFlightsToDownloads[i])]);
                 }
               }
