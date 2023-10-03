@@ -14,6 +14,7 @@ import loadingStore from "@/stores/loadingStore";
 import logginStore from "@/stores/logginStore";
 import pressedStore from "@/stores/pressedStore";
 import scanStore from "@/stores/scanStore";
+import CameraRN from "@/components/CameraRN";
 
 const Screens = createNativeStackNavigator();
 
@@ -92,6 +93,7 @@ export function Stack2({ navigation }) {
       />
       <Screens.Screen name="Загрузка" component={ModalScreen} />
       <Screens.Screen name="Место" component={Slot} />
+      <Screens.Screen name="Камера" component={CameraRN} />
     </Screens.Navigator>
   );
 }

@@ -42,7 +42,7 @@ export default function SlotList({ data, setData, navigation }) {
         </View>
         <View style={styles.image}>
           {el.item?.photos && el.item?.photos[0] && (<View style={styles.docItem}>
-            <Image style={styles.preview} source={{ uri: el.item.photos[0].uri }} />
+            <Image style={styles.preview} source={{ uri: el.item.photos[0].fileCopyUri }} />
           </View>) || <AntDesign name="picture" size={70} color="#d3d3d3" />}
         </View>
         <View style={styles.info}>

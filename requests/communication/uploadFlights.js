@@ -83,6 +83,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
           const photosSlot = items[i].photos.filter(e => !e.upload);
           console.log(items[i].photos, "items[i].photos");
           for (let f in photosSlot) {
+            console.log(photosSlot[f], "photosSlot[f]")
             const tokenFile = await axios.post('https://upload.app.salesap.ru/api/v1/files', {
               "type": "files",
               "data": {
@@ -90,7 +91,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
                 "resource-type": "deals",
                 "resource-id": Number(tmp.data?.id) || Number(res.data.data.id)
               }
-            }, config(user?.token)).catch(e => console.log(e.response.data));
+            }, config(user?.token)).catch(e => console.log(e));
             try {
               const fields = tokenFile.data.data["form-fields"];
               let formData = new FormData();

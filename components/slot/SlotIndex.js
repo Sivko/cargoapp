@@ -22,7 +22,7 @@ import DocumentPicker, {
 // import ImagePickerPreview from '../imagePicker/ImagePickerPreview';
 import { fields } from "@/requests/config";
 
-function SlotIndex({ route }) {
+function SlotIndex({ route, navigation }) {
   const [data, setData] = useState(route.params.data);
   const [length, setLength] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["length"]] || "");
   const [width, setWidth] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["width"]] || "");
@@ -81,27 +81,38 @@ function SlotIndex({ route }) {
           {/* <Text>{JSON.stringify(route.params.data[route.params.index - 1].attributes?.customs['custom_114632'])}</Text> */}
           {/* <ImagePickerPreview> */}
           <ScrollView horizontal={true} style={{ marginBottom: 10, flex: 1 }}>
-            <TouchableOpacity onPress={() => {
-              DocumentPicker.pick({ allowMultiSelection: true, type: types.images }).then((e) => { setPhotos(prev => [...e, ...prev]) }).catch(handleError)
-            }}>
-              <AntDesign name="picture" size={124} color="black" />
-            </TouchableOpacity>
+            <View style={{ marginRight: 20 }}>
+              <TouchableOpacity onPress={() => {
+                navigation.push("Камера", {
+                  setPhotos: (e) => setPhotos(e),
+                  route,
+                  navigation: navigation
+                });
+              }}>
+                <AntDesign name="camera" size={60} color="black" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {
+                DocumentPicker.pick({ allowMultiSelection: true, type: types.images, copyTo: 'documentDirectory' }).then((e) => { setPhotos(prev => [...e, ...prev]) }).catch(handleError)
+              }}>
+                <AntDesign name="picture" size={60} color="black" />
+              </TouchableOpacity>
+            </View>
             {photos[0] && photos.map((e, index) => (<View style={styles.docItem}>
-              <Image style={styles.preview} source={{ uri: e.uri }} />
+              <Image style={styles.preview} source={{ uri: e.fileCopyUri }} />
               <TouchableOpacity
                 style={styles.delete}
-                onPress={() => setPhotos(prev=>prev.filter((e, i)=>index!==i))}
+                onPress={() => setPhotos(prev => prev.filter((e, i) => index !== i))}
               >
                 <AntDesign name="close" size={12} color="#fff" />
               </TouchableOpacity>
               <TouchableOpacity
-                style={photos[index].name.includes('brak_') ? {...styles.status, backgroundColor: '#fc0', opacity: 1} : styles.status}
-                onPress={() => {photos[index].tmpName = "brak_";setPhotos(prev=>{prev[index].name?.includes('brak_') ? prev[index].name=prev[index].name.replace('brak_','') : prev[index].name="brak_"+prev[index].name ; return JSON.parse(JSON.stringify(prev))  })}}
+                style={photos[index].name.includes('brak_') ? { ...styles.status, backgroundColor: '#fc0', opacity: 1 } : styles.status}
+                onPress={() => { setPhotos(prev => { prev[index].name?.includes('brak_') ? prev[index].name = prev[index].name.replace('brak_', '') : prev[index].name = "brak_" + prev[index].name; return JSON.parse(JSON.stringify(prev)) }) }}
               >
                 <Text>Брак</Text>
               </TouchableOpacity>
             </View>
-            ))}
+            )) || (<Text style={{marginTop: 50}}>Не указаны фото с данного ТСД</Text>)} 
           </ScrollView>
           <View style={styles.dimensions}>
             <View style={styles.wrapper}>

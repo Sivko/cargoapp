@@ -1,4 +1,4 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+// import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { useEffect, useState } from "react";
 // import * as React from "react";
@@ -18,88 +18,12 @@ import Canvas from 'react-native-canvas';
 var RNFS = require('react-native-fs');
 import Marker, { ImageFormat, Position, TextBackgroundType } from "react-native-image-marker"
 
-
-const Screens = createNativeStackNavigator();
-
-
-function Options() {
-  const { user, loggin } = logginStore();
-  const [photos, setPhotos] = useState([]);
-  const [result, setResult] = useState(null);
-  const [newImage, setNewImage] = useState(null);
-
-  // const getBase64 = async (imageUri) => {
-  //   const filepath = imageUri.split('//')[1];
-  //   const imageUriBase64 = await RNFS.readFile(filepath, 'base64');
-  //   return `data:image/jpeg;base64,${imageUriBase64}`;
-  // }
-
-  const uploadFiles = async () => {
-    const data = await axios.post('https://upload.app.salesap.ru/api/v1/files', {
-      // const data = await axios.post('https://webhook.site/893b1b20-d021-47ba-b7d1-a4264ef51f86', {
-      "type": "files",
-      "data": {
-        "filename": photos[0].name,
-        "resource-type": "deals",
-        "resource-id": 7637861
-      }
-    }, config(user?.token)).catch(e => console.log(e.response.data));
-    try {
-      const fields = data.data.data["form-fields"];
-      let formData = new FormData();
-      for (let key in fields) {
-        if (fields.hasOwnProperty(key)) {
-          formData.append(key, fields[key])
-        }
-      }
-      formData.append("file", photos[0]);
-      const uploadData = await axios.post('https://storage.yandexcloud.net/salesapiens', formData);
-      // const uploadData = await axios.post('https://webhook.site/893b1b20-d021-47ba-b7d1-a4264ef51f86', formData);
-      console.log(uploadData, "uploadData");
-    } catch (err) { console.log("Не удалось загрузить") }
-  }
-
-  useEffect(() => {
-    console.log(photos, "photos");
-    console.log(result, "result");
-
-    if (photos[0]?.fileCopyUri) {
-
-      async function tt() {
-        const path = await Marker.markText({
-          backgroundImage: {
-            src: photos[0]?.fileCopyUri,
-          },
-          watermarkTexts: [{
-            text: '\nhello world',
-            positionOptions: {
-              position: Position.topLeft,
-            },
-            style: {
-              color: '#fff',
-              fontSize: 25,
-              fontName: 'Arial',
-              textBackgroundStyle: {
-                color: '#0000003d',
-              },
-            },
-          }],
-          scale: 1,
-          quality: 100,
-          filename: photos[0].name,
-          saveFormat: ImageFormat.base64,
-          maxSize: 1000,
-        })
-        console.log(path,"path");
-        setNewImage(path)
-      }
-      tt();
-
-    }
-  }, [photos, result])
+// const Screens = createNativeStackNavigator();
 
 
+function Options({ route }) {
 
+  const { setPhotos, lorem, navigation } = route.params;
 
   const handleError = () => {
     if (isCancel(err)) {
@@ -112,31 +36,44 @@ function Options() {
     }
   }
 
-
   takePicture = async () => {
     if (camera) {
-      const options = { quality: 0.5, base64: true };
+      const options = {};
       const data = await camera.takePictureAsync(options);
-      setResult(data)
-      console.log(data);
+      save(data);
+      // console.log(data);
     }
   };
 
-  handleCanvas = (canvas) => {
-    if (canvas && result) {
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = 'purple';
-      ctx.fillRect(0, 0, 200, 200);
-      ctx.drawImage(result.base64, 0, 0, 100, 100);
-    }
+  async function save(data) {
+    const filename = `${new Date().getTime()}.jpeg`;
+    try {
+      const pp = await RNFS.moveFile(data.uri, `${RNFS.PicturesDirectoryPath}/${filename}`);
+      // const rr = await RNFS.stat(`file://${RNFS.PicturesDirectoryPath}/${filename}`).catch(e => console.log(e, ":("))
+      // console.log(rr,"RR");
+      setPhotos(prev => [{ name: filename, type: 'image/jpeg', fileCopyUri: `file://${RNFS.PicturesDirectoryPath}/${filename}`, uri: `file://${RNFS.PicturesDirectoryPath}/${filename}` }, ...prev])
+      navigation.goBack();
+      // console.log(`${RNFS.PicturesDirectoryPath}/${filename}`)
+      // let formData = new FormData();
+      // formData.append("file", {
+      //   name: filename,
+      //   type: 'image/jpeg',
+      //   uri: `file://${RNFS.PicturesDirectoryPath}/${filename}`,
+      //   // fileCopyUri: `file://${RNFS.PicturesDirectoryPath}/${filename}`,
+      //   // filepath: `${RNFS.PicturesDirectoryPath}/${filename}`
+      // });
+      // const uploadData = await axios.post('https://webhook.site/4ad96567-239e-4ac7-98b5-c52cd1ec9b7b',
+      //   formData).catch(e=>console.log(e.message));
+    } catch (err) { console.log(err) }
   }
+
 
   return (
     <View style={styles.container}>
-      <View style={{ marginTop: 0, alignItems: 'center', justifyContent: 'center', marginEnd: 12 }}>
+      {/* <View style={{ marginTop: 0, alignItems: 'center', justifyContent: 'center', marginEnd: 12 }}>
         {newImage && <Image style={{ width: 200, height: 200, backgroundColor: '#ddd' }} source={{ uri: newImage}} />}
       </View>
-      <Text style={{ color: '#FFF' }}>CANVAS:</Text>
+      <Text style={{ color: '#FFF' }}>CANVAS:</Text> */}
       {/* <Canvas ref={handleCanvas} /> */}
       {/* {photos.map(e => (<View style={{ flex: 1 }} >
         <View style={{ height: 200, width: '100%', flexDirection: 'row', flexWrap: 'nowrap' }}>
@@ -145,7 +82,7 @@ function Options() {
           </ScrollView>
         </View>
       </View>))} */}
-      {result && (<View style={{ flex: 1, width: '100%', height: 100 }}>
+      {/* {result && (<View style={{ flex: 1, width: '100%', height: 100 }}>
         <Text>Photo:</Text>
         <Image style={{ flex: 1, width: '100%', height: '100%' }} source={{ uri: result.uri }} />
         <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
@@ -156,8 +93,9 @@ function Options() {
             <AntDesign name="close" size={30} color="#d3d3d3" />
           </TouchableOpacity>
         </View>
-      </View>)}
-      {/* {!result && (<View style={{ flex: 1, width: '100%', height: 100 }}>
+      </View>)} */}
+      <View style={{ flex: 1, width: '100%', height: 100 }}>
+
         <RNCamera
           ref={ref => {
             camera = ref;
@@ -172,13 +110,13 @@ function Options() {
             buttonNegative: 'Cancel',
           }}
         />
-        <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
+        <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center', position: 'absolute', width: '100%', bottom: 0 }}>
           <TouchableOpacity onPress={() => takePicture()} style={{ borderRadius: 100, backgroundColor: "#303030", padding: 20 }}>
             <AntDesign name="camerao" size={30} color="#d3d3d3" />
           </TouchableOpacity>
         </View>
-      </View>)} */}
-      <Button
+      </View>
+      {/* <Button
         title="open picker for multi file selection"
         onPress={() => {
           DocumentPicker.pick({ allowMultiSelection: true, type: types.images, copyTo: 'documentDirectory' }).then(setPhotos).catch(handleError)
@@ -187,28 +125,13 @@ function Options() {
       <Button
         title="Upload"
         onPress={uploadFiles}
-      />
+      /> */}
       {/* <Text selectable>Result: {JSON.stringify(result, null, 2)}</Text> */}
     </View>
   );
 }
 
-
-export function Stack4() {
-
-
-  return (
-    <Screens.Navigator>
-      <Screens.Screen
-        options={{ headerShown: false }}
-        name="Options2"
-        component={Options}
-      />
-    </Screens.Navigator>
-  );
-}
-
-export default Stack4;
+export default Options;
 
 
 const styles = StyleSheet.create({
