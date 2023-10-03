@@ -34,6 +34,12 @@ export default async function downloadSlotInFlights({ idFlightsToDownloads, rese
               if (_slotData?.id) {
                 if (!_slotData?.attributes["archived-at"] && !_slotData?.attributes["discarded-at"]) {
                   tmp.slots = [...tmp.slots, { data: { id: _slotData.id, type: 'deals', attributes: _slotData.attributes }, invoiceId: childrenDeals[n], invoices: childrenDeals2, uploadStatus: false }];
+                  // Загрузка фото
+                  // https://app.salesap.ru/api/v1/documents?filter[entity_type]=Deal&filter[entity_id]=7504282
+                  const photos = await axios.get(`https://app.salesap.ru/api/v1/documents?filter[entity_type]=Deal&filter[entity_id]=${_slotData.id}`,config(user?.token));
+                  const _photos = photos.data.data.filter((e)=>e.attributes['content-type'].includes('image'))
+                  console.log(_photos, "photos");
+                  // Конец Загрузки фото
                   resetStoragescanItems([tmp, ...scanItems.filter((e) => e.flight.data.id !== idFlightsToDownloads[i])]);
                 }
               }
