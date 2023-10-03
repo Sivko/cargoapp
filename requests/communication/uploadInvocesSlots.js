@@ -1,5 +1,6 @@
 import axios from "axios";
 import config, { timeout } from "@/requests/config";
+import markText from '@/components/markText'
 
 export async function uploadInvocesSlots({
   resetStorageInvocesToUpload,
@@ -51,8 +52,9 @@ export async function uploadInvocesSlots({
         .catch((e) => setLoggerStore({ data: e.data?.message, date: new Date(), type: "send slot", status: "error", }));
       setLoggerStore({ type: "send slot", status: "Ok", date: new Date() });
       tmp.slots[x].data.id = res2.data.data.id;
-       /* загрузка Фото */
-       if (invocesToUpload[i].slots[x].photos) {
+      let responseServer = res2.data.data
+      /* загрузка Фото */
+      if (invocesToUpload[i].slots[x].photos) {
         const photosSlot = invocesToUpload[i].slots[x].photos.filter(e => !e.upload);
         for (let f in photosSlot) {
           const tokenFile = await axios.post('https://upload.app.salesap.ru/api/v1/files', {
@@ -71,10 +73,12 @@ export async function uploadInvocesSlots({
                 formData.append(key, fields[key])
               }
             }
-            formData.append("file", photosSlot[f]);
+            let sklad = responseServer.attributes.customs["custom-99672"] ? responseServer.attributes.customs["custom-99672"][0] : ''
+            let slotNumber = responseServer.attributes.customs["custom-119567"] ? responseServer.attributes.customs["custom-119567"] : ''
+            const markToImage = await markText({ file: photosSlot[f], text1: slotNumber, text2: sklad });
+            formData.append("file", {...photosSlot[f], uri: markToImage});
             const uploadData = await axios.post('https://storage.yandexcloud.net/salesapiens', formData);
             console.log(uploadData, "Загрузил фото");
-
           } catch (err) { console.log("Не удалось загрузить", err) }
           photosSlot[f].upload = true;
         }

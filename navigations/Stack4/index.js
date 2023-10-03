@@ -71,7 +71,7 @@ function Options() {
             src: photos[0]?.fileCopyUri,
           },
           watermarkTexts: [{
-            text: '\nhello world',
+            text: '\nтакие вот жела',
             positionOptions: {
               position: Position.topLeft,
             },
@@ -87,7 +87,7 @@ function Options() {
           scale: 1,
           quality: 100,
           filename: photos[0].name,
-          saveFormat: ImageFormat.base64,
+          saveFormat: ImageFormat.jpg,
           maxSize: 1000,
         })
         console.log(path,"path");
@@ -134,7 +134,7 @@ function Options() {
   return (
     <View style={styles.container}>
       <View style={{ marginTop: 0, alignItems: 'center', justifyContent: 'center', marginEnd: 12 }}>
-        {newImage && <Image style={{ width: 200, height: 200, backgroundColor: '#ddd' }} source={{ uri: newImage}} />}
+        {newImage && <Image style={{ width: 200, height: 200, backgroundColor: '#ddd' }} source={{ uri: `file://${newImage}`}} />}
       </View>
       <Text style={{ color: '#FFF' }}>CANVAS:</Text>
       {/* <Canvas ref={handleCanvas} /> */}
@@ -184,6 +184,7 @@ function Options() {
           DocumentPicker.pick({ allowMultiSelection: true, type: types.images, copyTo: 'documentDirectory' }).then(setPhotos).catch(handleError)
         }}
       />
+      <Button title="clear" onPress={()=>setNewImage(null)} />
       <Button
         title="Upload"
         onPress={uploadFiles}

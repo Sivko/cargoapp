@@ -2,6 +2,7 @@ import axios from "axios";
 
 import config, { fields, stagesCategories, stagesFirstId } from "@/requests/config";
 import { setLogsData } from "@/requests/local/getSetLogs";
+import markText from '@/components/markText'
 
 const slotToUpload = {
   data: {
@@ -55,10 +56,12 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
         // console.log(scanItems[m])
         // return
         let slotId = tmp?.data?.id
+        let responseServer;
         if (slotId) {
           console.log("обновление");
           const url = `https://app.salesap.ru/api/v1/deals/${tmp.data.id}`;
           const res = await axios.put(url, { data: tmp.data }, config(user?.token)).catch(e => { setLogsData({ type: "error", status: e }); console.log(e, "error") });
+          responseServer = res.data.data;
           // console.log("Обновлено", res);
         } else {
           // try {
@@ -84,6 +87,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
               setLogsData({ type: "error", status: res.data })
               continue;
             }
+            responseServer = res.data.data;
             slotId = res.data.data.id;
           // } catch (err) {console.log("не удалось добавить", err); setLogsData({ type: "error", status: err })}
         }
@@ -98,7 +102,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
               "data": {
                 "filename": photosSlot[f].name,
                 "resource-type": "deals",
-                "resource-id": Number(tmp.data?.id) || Number(slotId)
+                "resource-id": Number(slotId)
               }
             }, config(user?.token)).catch(e => console.log(e));
             try {
@@ -109,9 +113,12 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
                   formData.append(key, fields[key])
                 }
               }
-              formData.append("file", photosSlot[f]);
+              let sklad = responseServer.attributes.customs["custom-99672"] ? responseServer.attributes.customs["custom-99672"][0] : ''
+              let slotNumber = responseServer.attributes.customs["custom-119567"] ? responseServer.attributes.customs["custom-119567"] : ''
+              const markToImage = await markText({file: photosSlot[f], text1: slotNumber, text2: sklad});
+              formData.append("file", {...photosSlot[f], uri: markToImage});
               const uploadData = await axios.post('https://storage.yandexcloud.net/salesapiens', formData);
-            } catch (err) { setLogsData({ type: "error", status: { msg: "Не удалось загрузить фото", err } }) }
+            } catch (err) { console.log(err,"Ошибка загрузки");setLogsData({ type: "error", status: { msg: "Не удалось загрузить фото", err } }) }
             photosSlot[f].upload = true;
           }
         }
