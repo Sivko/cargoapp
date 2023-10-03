@@ -69,30 +69,26 @@ export default function DownloadFlights({ navigation }) {
               onLongPress={() => hendlerCard(index, scanItems)}
               delayLongPress={500}
             >
-              <Text style={{width: '5%'}}>{index + 1}</Text>
+              <Text style={{width: '10%'}}>{index + 1}</Text>
               <View style={{width: '40%'}}> 
                 <Text>ID: {e.flight.data?.id}</Text>
                 <Text numberOfLines={1}>{e.flight.data.attributes.name}</Text>
                 {/* <Text>Код. кл: {e.flight.data?.attributes?.customs[fields["clientCode"]]}</Text> */}
                 <Text>Транспорт: {e.flight.data?.attributes?.customs[fields["transport"]]}</Text>
               </View>
-              <View style={{width: '40%'}}>
+              <View style={press ? {width: '30%'} : {width: '35%'}}>
                 <Text>Кол-во мест: {e?.slots?.length}</Text>
                 <Text>Ошибок: {e?.slots?.filter((el) => el.data?.attributes?.customs[fields["scanTSD"]] == "Ошибка")?.length}</Text>
                 <Text>Статус: {e?.flight.data?.attributes?.customs[fields["scanTSD"]]}</Text>
               </View>
-              <View style={{ gap: 10 }}>
+              <View style={{ gap: 10, width: '15%' }}>
                 <View style={{ alignItems: "center", justifyContent: "center" }}>
-                  {/* {e?.slots?.filter((e) => e.data.id)?.length == e?.slots?.filter((e) => e.data.id).length && <Feather name="upload-cloud" size={24} color="#2196f3" />}
-                  {e?.slots?.filter((e) => e.data.id)?.length && e?.slots?.filter((e) => e.data.id).length && <Feather name="upload-cloud" size={24} color="#deb617" />}
-                  {!e?.slots?.filter((e) => e.data.id)?.length && !e?.slots?.filter((e) => e.data.id).length && <Feather name="upload-cloud" size={24} color="#ddd" />} */}
-
                   <Text style={{ fontSize: 10 }}>
                     Отпр: {e?.slots?.filter(e => e?.uploadStatus === true).length || 0}
                   </Text>
                 </View>
                 <View style={{ alignItems: "center", justifyContent: "center" }}>
-                  {e?.slots?.filter((e) => e.data.id)?.length && <Feather name="download-cloud" size={24} color="#2196f3" />}
+                  {e?.slots?.length > 0 && e?.slots?.filter((e) => e.data.id)?.length && <Feather name="download-cloud" size={24} color="#2196f3" />}
                   {!e?.slots?.filter((e) => e.data.id)?.length && <Feather name="download-cloud" size={24} color="#ddd" />}
                   <Text style={{ fontSize: 10 }}>
                     Загр: {e?.slots?.filter(e => e?.data?.id)?.length || "0"}
@@ -101,12 +97,12 @@ export default function DownloadFlights({ navigation }) {
               </View>
               {/* {press && !e?.slots?.filter((e) => e.data.id)?.length && ( */}
               {press && (
-                <View style={{ flexBasis: 25 }}>
+                <View style={{ width: '5%' }}>
                   {checkedElements.includes(e.flight.data.id) && (
-                    <FontAwesome name="check-circle" size={24} color="#2196f3" />
+                    <FontAwesome name="check-circle" size={20} color="#2196f3" />
                   )}
                   {!checkedElements.includes(e.flight.data.id) && (
-                    <FontAwesome name="circle-o" size={24} color="#ddd" />
+                    <FontAwesome name="circle-o" size={20} color="#ddd" />
                   )}
                 </View>
               )}
