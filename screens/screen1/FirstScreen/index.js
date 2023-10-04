@@ -28,7 +28,6 @@ function AddInvoices({ navigation }) {
       <TextInput
         style={styles.input}
         onChangeText={(e) => setNumberTTN(e)}
-        keyboardType="numeric"
         value={numberTTN.toString()}
         placeholder="Номер ТТН"
       />

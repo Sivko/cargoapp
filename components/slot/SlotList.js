@@ -67,13 +67,13 @@ export default function SlotList({ data, setData, navigation }) {
           <Text>
             КВ: {!el.item?.invoiceId ? "" : el.item?.invoices.filter(e => e?.id === el.item?.invoiceId)[0]?.name}
           </Text>
-          {el.item?.data?.attributes?.customs[fields["scanTSD"]] ===
+          {el.item?.data?.attributes?.customs[fields["scanTSD"]] ==
             "Найдено" && (
               <Text>
                 Статус: <Text style={{ color: "green" }}>Найдено</Text>
               </Text>
             )}
-          {el.item?.data?.attributes?.customs[fields["scanTSD"]] ===
+          {el.item?.data?.attributes?.customs[fields["scanTSD"]] ==
             "Ошибка" && (
               <Text>
                 Статус: <Text style={{ color: "red" }}>Ошибка</Text>

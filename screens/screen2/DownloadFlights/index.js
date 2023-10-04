@@ -79,7 +79,8 @@ export default function DownloadFlights({ navigation }) {
               <View style={press ? {width: '30%'} : {width: '35%'}}>
                 <Text>Кол-во мест: {e?.slots?.length}</Text>
                 <Text>Ошибок: {e?.slots?.filter((el) => el.data?.attributes?.customs[fields["scanTSD"]] == "Ошибка")?.length}</Text>
-                <Text>Статус: {e?.flight.data?.attributes?.customs[fields["scanTSD"]]}</Text>
+                {/* <Text>Статус: {e?.flight.data?.attributes?.customs[fields["scanTSD"]]}</Text> */}
+                <Text>Найдено: {e?.slots?.filter((el) => el.data?.attributes?.customs[fields["scanTSD"]] == "Найдено")?.length}</Text>
               </View>
               <View style={{ gap: 10, width: '15%' }}>
                 <View style={{ alignItems: "center", justifyContent: "center" }}>

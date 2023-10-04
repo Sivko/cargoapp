@@ -35,10 +35,17 @@ function SlotIndex({ route, navigation }) {
   const [description, setDescription] = useState(route.params.data[route.params.index - 1].data?.attributes?.description);
   const [transport, setTransport] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["transport"]][0] || "");
   const [invoiceId, setInvoiceId] = useState(route.params.data[route.params.index - 1].invoiceId || "");
-  const [invoces, setInvoices] = useState(route.params.data[route.params.index - 1].invoices || []);
+  const [invoces, setInvoices] = useState(route.params.data[route.params.index - 1]?.invoices || []);
   const [uploadStatus, setUploadSatus] = useState(route.params.data[route.params.index - 1].uploadStatus || false);
   const [photos, setPhotos] = useState(route.params.data[route.params.index - 1].photos || []);
 
+
+  useEffect(()=> {
+    if (route.params.data[route.params.index - 1]?.invoices) {
+      setInvoiceId(route.params.data[route.params.index - 1].invoices[0].id)
+    }
+  },[]);
+  
   useEffect(() => {
     setData((prev) => {
       const slots = JSON.parse(JSON.stringify(prev));
@@ -99,7 +106,7 @@ function SlotIndex({ route, navigation }) {
               </TouchableOpacity>
             </View>
             {photos[0] && photos.map((e, index) => (<View style={styles.docItem}>
-              <TouchableOpacity onPress={()=>setIndexImageView(index)}>
+              <TouchableOpacity onPress={() => setIndexImageView(index)}>
                 <Image style={styles.preview} source={{ uri: e.fileCopyUri }} />
               </TouchableOpacity>
               <TouchableOpacity
@@ -110,7 +117,7 @@ function SlotIndex({ route, navigation }) {
               </TouchableOpacity>
               <TouchableOpacity
                 style={photos[index].name.includes('brak_') ? { ...styles.status, backgroundColor: '#fc0', opacity: 1 } : styles.status}
-                onPress={() => { setPhotos(prev => { prev[index].name?.includes('brak_') ? prev[index].name = prev[index].name.replace('brak_', '') : prev[index].name = "brak_" + prev[index].name; return JSON.parse(JSON.stringify(prev)) }) }}
+                onPress={() => { !photos[index].uploadStatus ? ()=>{} : setPhotos(prev => { prev[index].name?.includes('brak_') ? prev[index].name = prev[index].name.replace('brak_', '') : prev[index].name = "brak_" + prev[index].name; return JSON.parse(JSON.stringify(prev)) }) }}
               >
                 <Text>Брак</Text>
               </TouchableOpacity>
@@ -168,20 +175,14 @@ function SlotIndex({ route, navigation }) {
             </View>
             {/* </View>
           <View style={{ flex: 1, flexDirection: "row" }}> */}
-            {/* <View style={{ ...styles.wrapper, width: "100%" }}>
+            {route.params.data[route.params.index - 1].data?.id && (<View style={{ ...styles.wrapper, width: "100%" }}>
               <View style={styles.fieldSet}>
                 <Text style={styles.legend}>Штрих-код</Text>
-                <TextInput
-                  keyboardType="numeric"
-                  style={styles.legendInput}
-                  onChangeText={(e) => setBarcode(e)}
-                  value={String(barcode ?? "")}
-                  onFocus={focus(setBarcode)}
-                />
+                <Text style={{padding: 10}}>{String(barcode) ?? "Не указан"}</Text>
               </View>
-            </View> */}
+            </View>)}
           </View>
-          <View style={{ ...styles.wrapper, width: "100%" }}>
+          {!route.params.data[route.params.index - 1].data?.id && (<View style={{ ...styles.wrapper, width: "100%" }}>
             <View style={styles.fieldSet}>
               <Text style={styles.legend}>Вид транспорта:</Text>
               <View style={styles.pickerWrapper}>
@@ -201,9 +202,9 @@ function SlotIndex({ route, navigation }) {
                 ))}
               </View>
             </View>
-          </View>
+          </View>)}
           {!route.params.data[route.params.index - 1].data?.id && (<View style={{ ...styles.wrapper, width: "100%" }}>
-            <View style={styles.fieldSet}>
+            {!route.params.data[route.params.index - 1].data?.id && (<View style={styles.fieldSet}>
               <Text style={styles.legend}>Квитанция:</Text>
               <View style={styles.pickerWrapper}>
                 {invoces.map((e, index) => (
@@ -221,7 +222,7 @@ function SlotIndex({ route, navigation }) {
                   </TouchableOpacity>
                 ))}
               </View>
-            </View>
+            </View>)}
           </View>)}
           <View style={{ ...styles.wrapper, width: "100%" }}>
             <View style={{ ...styles.fieldSet, minWidth: "100%" }}>

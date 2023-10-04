@@ -54,7 +54,7 @@ export function Stack2({ navigation }) {
             );
           },
           headerRight: () => {
-            if (loading) return <Text>Выполнение...</Text>;
+            if (loading) return <Text style={{fontSize: 10}}>Выполнение...</Text>;
             return press ? (
               <Button
                 title="Загрузить"

@@ -49,13 +49,13 @@ export default async function downloadSlotInFlights({ idFlightsToDownloads, rese
                           Authorization: `Bearer mUYmfdF5Hr0zUC9b3WLmR94p_DH4-GPkdQ42FmBZpv0`,
                         }
                       }).promise.then((response) => {
-                        tmpPhotos.push({name: `${_photos[l].attributes.name}`, type: _photos[l].attributes["content-type"], uri: `file://${RNFS.PicturesDirectoryPath}/${_photos[l].attributes.name}`, fileCopyUri: `file://${RNFS.PicturesDirectoryPath}/${_photos[l].attributes.name}`})
+                        tmpPhotos.push({name: `${_photos[l].attributes.name}`, upload: true, type: _photos[l].attributes["content-type"], uri: `file://${RNFS.PicturesDirectoryPath}/${_photos[l].attributes.name}`, fileCopyUri: `file://${RNFS.PicturesDirectoryPath}/${_photos[l].attributes.name}`})
                       })
                     }
                     console.log("end formating tmp")
                   }
                   // Конец Загрузки фото
-                  tmp.slots = [...tmp.slots, {photos: tmpPhotos, data: { id: _slotData.id, type: 'deals', attributes: _slotData.attributes }, invoiceId: childrenDeals[n], invoices: childrenDeals2, uploadStatus: false }];
+                  tmp.slots = [...tmp.slots, {photos: tmpPhotos, data: { id: _slotData.id, type: 'deals', attributes: _slotData.attributes }, invoiceId: childrenDeals[n], invoices: childrenDeals2, uploadStatus: true }];
                   resetStoragescanItems([tmp, ...scanItems.filter((e) => e.flight.data.id !== idFlightsToDownloads[i])]);
                 }
               }
