@@ -55,7 +55,7 @@ export default async function downloadSlotInFlights({ idFlightsToDownloads, rese
                     console.log("end formating tmp")
                   }
                   // Конец Загрузки фото
-                  tmp.slots = [...tmp.slots, {photos: tmpPhotos, data: { id: _slotData.id, type: 'deals', attributes: _slotData.attributes }, invoiceId: childrenDeals[n], invoices: childrenDeals2, uploadStatus: true }];
+                  tmp.slots = [...tmp.slots, {photos: tmpPhotos, data: { id: _slotData.id, type: 'deals', attributes: _slotData.attributes }, invoiceId: childrenDeals[n], invoices: childrenDeals2, uploadStatus: false }];
                   resetStoragescanItems([tmp, ...scanItems.filter((e) => e.flight.data.id !== idFlightsToDownloads[i])]);
                 }
               }

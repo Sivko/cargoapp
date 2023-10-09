@@ -41,7 +41,8 @@ export const fields = {
   numberTTN: "custom-115383",
   scanTSD: "custom-99670",
   userToken: "custom-120321",
-  userPassword: "custom-120322"
+  userPassword: "custom-120322",
+  directorId: "custom-120654"
 };
 
 export default config;

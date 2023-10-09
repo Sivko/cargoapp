@@ -27,7 +27,19 @@ export async function uploadInvocesSlots({
             "type": "contacts",
             "id": Number(contact.data.data[0].id)
           }
-        }
+        },
+        user: {
+          data: {
+            type: "users",
+            id: user?.directorId || user.id
+          }
+        },
+        responsible: {
+          data: {
+            type: "users",
+            id: user.id
+          }
+        },
       }
     }
     const resInvoice = await axios

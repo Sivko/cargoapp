@@ -9,8 +9,8 @@ const logginStore = zustand.create((set) => ({
     const data = JSON.parse(storage);
     return set({ user: { ...data } });
   },
-  loggin: async ({ id, firstName, lastName, email, token }) => {
-    const data = { id, firstName, lastName, email, token };
+  loggin: async ({ id, firstName, lastName, email, token, directorId }) => {
+    const data = { id, firstName, lastName, email, token, directorId };
     await AsyncStorage.setItem("user", JSON.stringify(data));
     return set((state) => ({
       user: data,

@@ -48,7 +48,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
         tmp.data.attributes.customs[fields["transport"]] = items[i].data.attributes.customs[fields["transport"]];
         tmp.data.attributes.customs[fields["clientCode"]] = items[i].data.attributes.customs[fields["clientCode"]];
         tmp.data.attributes.customs[fields["numberTTN"]] = items[i].data.attributes.customs[fields["numberTTN"]];
-        tmp.data.attributes.customs[fields["scanTSD"]] = items[i]?.data?.attributes?.customs[fields["scanTSD"]] || "Ошибка";
+        tmp.data.attributes.customs[fields["scanTSD"]] = items[i]?.data?.attributes?.customs[fields["scanTSD"]]  != "Найдено" ? "Ошибка" : items[i]?.data?.attributes?.customs[fields["scanTSD"]];
         // let xx = tmp.data.attributes.customs[fields["scanTSD"]];
         // debugger;
         // tmp.data.relationships?.stage?.data?.id = scanItems[m]?.flight?.data?.id;
@@ -60,7 +60,8 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
         if (slotId) {
           console.log("обновление");
           const url = `https://app.salesap.ru/api/v1/deals/${tmp.data.id}`;
-          const res = await axios.put(url, { data: tmp.data }, config(user?.token)).catch(e => { setLogsData({ type: "error", status: e }); console.log(e, "error") });
+          // Обновляем по токену Админа!
+          const res = await axios.put(url, { data: tmp.data }, config()).catch(e => { setLogsData({ type: "error", status: e }); console.log(e, "error") });
           responseServer = res.data.data;
           // console.log("Обновлено", res);
         } else {
@@ -68,6 +69,18 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
           console.log("добавление");
           const url = `https://app.salesap.ru/api/v1/deals`;
           tmp.data.relationships = {
+            user: {
+              data: {
+                type: "users",
+                id: user?.directorId || user.id
+              }
+            },
+            responsible: {
+              data: {
+                type: "users",
+                id: user.id
+              }
+            },
             deals: {
               data: [{
                 type: "deals",
@@ -83,7 +96,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
           };
           const res = await axios.post(url, { data: tmp.data }, config(user?.token)).catch(e => setLogsData({ type: "error", status: e }));
           console.log(res.status, scanItems[m]?.slots[0]?.invoices[0].id);
-          if (res.status > 400) {
+          if (res.status >= 400) {
             setLogsData({ type: "error", status: res.data })
             continue;
           }
@@ -140,14 +153,14 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
           t.id === value.id
         ))
       );
-      let invoicesStatus=[]
+      let invoicesStatus = []
       for (let x in invoicesUnicId) {
         const id = invoicesUnicId[x].id
-        invoicesStatus.push({id: id, statuses: tmpInvoices.filter(e => e.id == id).map(e=>e.status)});
+        invoicesStatus.push({ id: id, statuses: tmpInvoices.filter(e => e.id == id).map(e => e.status) });
       }
-      let errors=[]
+      let errors = []
       for (let h in invoicesStatus) {
-        if (invoicesStatus[h]?.statuses?.length){
+        if (invoicesStatus[h]?.statuses?.length) {
           // console.log("UPD")
           if (invoicesStatus[h]?.statuses.includes("Ошибка")) {
             // console.log("Error")

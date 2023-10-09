@@ -38,7 +38,9 @@ export function Option() {
               removeFlightDeals();
             }}
           /> */}
-          <Text style={{marginBottom: 40}}>Пользователь: {user.email} ({user.id})</Text>
+          <Text style={{marginBottom: 10}}>{user.firstName} {user.lastName}</Text>
+          <Text style={{marginBottom: 10}}>{user.email} ({user.id})</Text>
+          <Text style={{marginBottom: 40}}>ID рук-ля: {user?.directorId || "-"}</Text>
           {/* <View style={styles.btn}>
             <Button
               title="Очистить Логи"

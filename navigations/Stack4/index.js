@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { useEffect, useState } from "react";
 // import * as React from "react";
-import { Button, Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Button, Image, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import DocumentPicker, {
   DirectoryPickerResponse,
   DocumentPickerResponse,
@@ -25,11 +25,16 @@ const Screens = createNativeStackNavigator();
 
 function Options() {
 
+  const { user } = logginStore()
   const [file, setFile] = useState(`${RNFS.PicturesDirectoryPath}/file3.jpg`)
   const [visible, setIsVisible] = useState(false);
 
+  // console.log(user)
   // useEffect(()=> {console.log(file)},[file]);
 
+  useEffect(()=> {
+    console.log(user)
+  },[])
   // useEffect(() => {
   //   RNFS.unlink(`${RNFS.PicturesDirectoryPath}/file3.jpg`)
   //     .then(() => {
@@ -55,7 +60,7 @@ function Options() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Button onPress={()=>setIsVisible(true)} title="open" />
+      <Button onPress={() => setIsVisible(true)} title="open" />
       {/* <Image source={{uri: `file://${RNFS.PicturesDirectoryPath}/file3.jpg`}} style={{flex: 1, width: '100%'}} /> */}
       {/* <Image source={{uri: `file://${file}`}} style={{flex: 1, width: '100%'}} />
       <Button title={"downloadFile"} onPress={downloadFile} /> */}
@@ -66,12 +71,15 @@ function Options() {
           { id: 2,source: { url: `content://${RNFS.PicturesDirectoryPath}/file2.jpg`, } },
         ]}
       /> */}
+      {/* <TextInput
+        value={String(JSON.stringify(user))}
+      /> */}
       <ImageView
         style={{ flex: 1, backgroundColor: 'black' }}
         imageIndex={1}
         visible={visible}
         onRequestClose={() => setIsVisible(false)}
-      
+
         images={[
           { uri: `file://${RNFS.PicturesDirectoryPath}/file3.jpg` },
           { uri: `file://${RNFS.PicturesDirectoryPath}/file2.jpg` },

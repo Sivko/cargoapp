@@ -58,6 +58,9 @@ function Login() {
         loggin({
           id: data.id,
           token: data.attributes.customs[fields["userToken"]],
+          directorId: data.attributes.customs[fields["directorId"]],
+          firstName: data.attributes["first-name"],
+          lastName: data.attributes["last-name"],
           ...data.attributes,
         });
       } catch (error) {
