@@ -19,7 +19,7 @@ const slotToUpload = {
         [fields["transport"]]: "",
         [fields["clientCode"]]: "",
         [fields["numberTTN"]]: "",
-        [fields["scanTSD"]]: "Ошибка",
+        [fields["scanTSD"]]: "Не найдено",
       },
     },
   },
@@ -48,7 +48,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
         tmp.data.attributes.customs[fields["transport"]] = items[i].data.attributes.customs[fields["transport"]];
         tmp.data.attributes.customs[fields["clientCode"]] = items[i].data.attributes.customs[fields["clientCode"]];
         tmp.data.attributes.customs[fields["numberTTN"]] = items[i].data.attributes.customs[fields["numberTTN"]];
-        tmp.data.attributes.customs[fields["scanTSD"]] = items[i]?.data?.attributes?.customs[fields["scanTSD"]]  != "Найдено" ? "Ошибка" : items[i]?.data?.attributes?.customs[fields["scanTSD"]];
+        tmp.data.attributes.customs[fields["scanTSD"]] = items[i]?.data?.attributes?.customs[fields["scanTSD"]]  != "Найдено" ? "Не найдено" : items[i]?.data?.attributes?.customs[fields["scanTSD"]];
         // let xx = tmp.data.attributes.customs[fields["scanTSD"]];
         // debugger;
         // tmp.data.relationships?.stage?.data?.id = scanItems[m]?.flight?.data?.id;
@@ -126,7 +126,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
                   formData.append(key, fields[key])
                 }
               }
-              let sklad = responseServer.attributes.customs["custom-99672"] ? responseServer.attributes.customs["custom-99672"][0] : ''
+              let sklad = responseServer.attributes.customs["custom-99672"] ? responseServer.attributes.customs["custom-99672"] : ''
               let slotNumber = responseServer.attributes.customs["custom-119567"] ? responseServer.attributes.customs["custom-119567"] : ''
               const markToImage = await markText({ file: photosSlot[f], text1: slotNumber, text2: sklad });
               formData.append("file", { ...photosSlot[f], uri: markToImage });
@@ -147,7 +147,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
   //обновление Рейсов и Квитанций
   for (let m in scanItems) {
     if (scanItems[m].slots) {
-      const tmpInvoices = scanItems[m].slots.map((e) => ({ id: e.invoiceId, status: e.data.attributes.customs[fields["scanTSD"]] != "Найдено" ? "Ошибка" : "Найдено" }));
+      const tmpInvoices = scanItems[m].slots.map((e) => ({ id: e.invoiceId, status: e.data.attributes.customs[fields["scanTSD"]] != "Найдено" ? "Не найдено" : "Найдено" }));
       let invoicesUnicId = tmpInvoices.filter((value, index, self) =>
         index === self.findIndex((t) => (
           t.id === value.id
@@ -162,7 +162,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
       for (let h in invoicesStatus) {
         if (invoicesStatus[h]?.statuses?.length) {
           // console.log("UPD")
-          if (invoicesStatus[h]?.statuses.includes("Ошибка")) {
+          if (invoicesStatus[h]?.statuses.includes("Не найдено")) {
             // console.log("Error")
             await axios.patch(`https://app.salesap.ru/api/v1/deals/${invoicesStatus[h].id}`, { data: { type: 'deals', id: invoicesStatus[h].id, attributes: { customs: { [fields["scanTSD"]]: "Ошибка" } } } }, config(user?.token))
             errors.push(true)

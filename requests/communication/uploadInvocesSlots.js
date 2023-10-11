@@ -20,25 +20,25 @@ export async function uploadInvocesSlots({
   for (const i in invocesToUpload.filter((e) => !e.invoice.data.id)) {
     console.log(`https://app.salesap.ru/api/v1/contacts?filter[custom-102342]=${invocesToUpload[i].invoice.data.attributes.customs[fields["clientCode"]]}`);
     const contact = await axios.get(`https://app.salesap.ru/api/v1/contacts?filter[custom-102342]=${invocesToUpload[i].invoice.data.attributes.customs[fields["clientCode"]]}`, config(user?.token));
+    invocesToUpload[i].invoice.data.relationships = {
+      user: {
+        data: {
+          type: "users",
+          id: user?.directorId || user.id
+        }
+      },
+      responsible: {
+        data: {
+          type: "users",
+          id: user.id
+        }
+      },
+    }
     if (contact.data?.data?.length) {
-      invocesToUpload[i].invoice.data.relationships = {
-        "contact": {
-          "data": {
-            "type": "contacts",
-            "id": Number(contact.data.data[0].id)
-          }
-        },
-        user: {
-          data: {
-            type: "users",
-            id: user?.directorId || user.id
-          }
-        },
-        responsible: {
-          data: {
-            type: "users",
-            id: user.id
-          }
+      invocesToUpload[i].invoice.data.relationships.contact = {
+        "data": {
+          "type": "contacts",
+          "id": Number(contact.data.data[0].id)
         },
       }
     }
@@ -65,6 +65,18 @@ export async function uploadInvocesSlots({
     ]);
     await new Promise((r) => setTimeout(r, timeout));
     for (const x in invocesToUpload[i].slots) {
+      tmp.slots[x].data.relationships.user = {
+        data: {
+          type: "users",
+          id: user?.directorId || user.id
+        }
+      };
+      tmp.slots[x].data.relationships.responsible = {
+        data: {
+          type: "users",
+          id: user.id
+        }
+      };
       tmp.slots[x].data.relationships.deals = {
         data: [
           {

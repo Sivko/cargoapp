@@ -33,7 +33,7 @@ function SlotIndex({ route, navigation }) {
   const [weight, setWeight] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["weight"]] || "");
   const [barcode, setBarcode] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["barcode"]] || "");
   const [description, setDescription] = useState(route.params.data[route.params.index - 1].data?.attributes?.description);
-  const [transport, setTransport] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["transport"]][0] || "");
+  const [transport, setTransport] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["transport"]] || "");
   const [invoiceId, setInvoiceId] = useState(route.params.data[route.params.index - 1].invoiceId || "");
   const [invoces, setInvoices] = useState(route.params.data[route.params.index - 1]?.invoices || []);
   const [uploadStatus, setUploadSatus] = useState(route.params.data[route.params.index - 1].uploadStatus || false);
