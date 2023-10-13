@@ -11,14 +11,6 @@ function defaultInvoce({ name, clientCode, numberTTN }) {
           [fields["numberTTN"]]: numberTTN || "",
         },
       },
-      relationships: {
-        stage: {
-          data: {
-            type: "deal-stages",
-            id: fields["idStageInvoce"],
-          },
-        },
-      },
     },
   }
 };

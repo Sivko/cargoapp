@@ -21,6 +21,12 @@ export async function uploadInvocesSlots({
     console.log(`https://app.salesap.ru/api/v1/contacts?filter[custom-102342]=${invocesToUpload[i].invoice.data.attributes.customs[fields["clientCode"]]}`);
     const contact = await axios.get(`https://app.salesap.ru/api/v1/contacts?filter[custom-102342]=${invocesToUpload[i].invoice.data.attributes.customs[fields["clientCode"]]}`, config(user?.token));
     invocesToUpload[i].invoice.data.relationships = {
+      stage: {
+        data: {
+          type: "deal-stages",
+          id: fields["idStageInvoce"],
+        },
+      },
       user: {
         data: {
           type: "users",
@@ -111,11 +117,11 @@ export async function uploadInvocesSlots({
             }
           }, config(user?.token)).catch(e => console.log(e.response.data));
           try {
-            const fields = tokenFile.data.data["form-fields"];
+            const _fields = tokenFile.data.data["form-fields"];
             let formData = new FormData();
-            for (let key in fields) {
-              if (fields.hasOwnProperty(key)) {
-                formData.append(key, fields[key])
+            for (let key in _fields) {
+              if (_fields.hasOwnProperty(key)) {
+                formData.append(key, _fields[key])
               }
             }
             let sklad = responseServer.attributes.customs["custom-99672"] ? responseServer.attributes.customs["custom-99672"][0] : ''
