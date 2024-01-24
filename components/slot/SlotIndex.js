@@ -34,20 +34,20 @@ function SlotIndex({ route, navigation }) {
   const [barcode, setBarcode] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["barcode"]] || "");
   const [description, setDescription] = useState(route.params.data[route.params.index - 1].data?.attributes?.description);
   const [transport, setTransport] = useState(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["transport"]] || "");
-  const [invoiceId, setInvoiceId] = useState(route.params.data[route.params.index - 1].invoiceId || "");
-  const [invoces, setInvoices] = useState(route.params.data[route.params.index - 1]?.invoices || []);
+  // const [invoiceId, setInvoiceId] = useState(route.params.data[route.params.index - 1].invoiceId || "");
+  const [flightId, setFlightId] = useState(route.params.data[route.params.index - 1]?.flightId || "");
   const [uploadStatus, setUploadSatus] = useState(route.params.data[route.params.index - 1].uploadStatus || false);
   const [photos, setPhotos] = useState(route.params.data[route.params.index - 1].photos || []);
 
+  // useEffect(()=> {
+  //   if (route.params.data[route.params.index - 1]?.invoices) {
+  //     setInvoiceId(route.params.data[route.params.index - 1].invoices[0].id)
+  //   }
+  // },[]);
 
-  useEffect(()=> {
-    if (route.params.data[route.params.index - 1]?.invoices) {
-      setInvoiceId(route.params.data[route.params.index - 1].invoices[0].id)
-    }
-  },[]);
-  
   useEffect(() => {
     setData((prev) => {
+
       const slots = JSON.parse(JSON.stringify(prev));
       slots[route.params.index - 1].data.attributes.description = description;
       slots[route.params.index - 1].data.attributes.customs[fields["length"]] = length;
@@ -56,12 +56,20 @@ function SlotIndex({ route, navigation }) {
       slots[route.params.index - 1].data.attributes.customs[fields["weight"]] = weight;
       slots[route.params.index - 1].data.attributes.customs[fields["barcode"]] = barcode;
       slots[route.params.index - 1].data.attributes.customs[fields["transport"]] = transport;
-      slots[route.params.index - 1].invoiceId = invoiceId;
+      // slots[route.params.index - 1].invoiceId = invoiceId;
+      slots[route.params.index - 1].flightId = flightId;
       slots[route.params.index - 1].uploadStatus = false;
       slots[route.params.index - 1].photos = photos;
+
+      const activity = `
+      ${length !== route.params.data[route.params.index - 1].data?.attributes?.customs[fields["length"]] ? "Изменена Длина с " + route.params.data[route.params.index - 1].data?.attributes?.customs[fields["length"]] + " на " + length : ""}
+      ${width !== route.params.data[route.params.index - 1].data?.attributes?.customs[fields["width"]] ? "Изменена Ширина с " + route.params.data[route.params.index - 1].data?.attributes?.customs[fields["width"]] + " на " + width : ""}
+      ${height !== route.params.data[route.params.index - 1].data?.attributes?.customs[fields["height"]] ? "Изменена Высота с " + route.params.data[route.params.index - 1].data?.attributes?.customs[fields["height"]] + " на " + length : ""}        
+    `
+      slots[route.params.index - 1].activity = activity;
       return slots;
     });
-  }, [length, width, height, transport, weight, description, barcode, uploadStatus, invoiceId, photos]);
+  }, [length, width, height, transport, weight, description, barcode, uploadStatus, photos]);
 
   function focus(setValue, value) {
     return function () {
@@ -117,7 +125,7 @@ function SlotIndex({ route, navigation }) {
               </TouchableOpacity>
               <TouchableOpacity
                 style={photos[index].name.includes('brak_') ? { ...styles.status, backgroundColor: '#fc0', opacity: 1 } : styles.status}
-                onPress={() => { !photos[index].uploadStatus ? ()=>{} : setPhotos(prev => { prev[index].name?.includes('brak_') ? prev[index].name = prev[index].name.replace('brak_', '') : prev[index].name = "brak_" + prev[index].name; return JSON.parse(JSON.stringify(prev)) }) }}
+                onPress={() => { !photos[index].uploadStatus ? () => { } : setPhotos(prev => { prev[index].name?.includes('brak_') ? prev[index].name = prev[index].name.replace('brak_', '') : prev[index].name = "brak_" + prev[index].name; return JSON.parse(JSON.stringify(prev)) }) }}
               >
                 <Text>Брак</Text>
               </TouchableOpacity>
@@ -178,7 +186,7 @@ function SlotIndex({ route, navigation }) {
             {route.params.data[route.params.index - 1].data?.id && (<View style={{ ...styles.wrapper, width: "100%" }}>
               <View style={styles.fieldSet}>
                 <Text style={styles.legend}>Штрих-код</Text>
-                <Text style={{padding: 10}}>{String(barcode) ?? "Не указан"}</Text>
+                <Text style={{ padding: 10 }}>{String(barcode) ?? "Не указан"}</Text>
               </View>
             </View>)}
           </View>
@@ -203,7 +211,7 @@ function SlotIndex({ route, navigation }) {
               </View>
             </View>
           </View>)}
-          {!route.params.data[route.params.index - 1].data?.id && (<View style={{ ...styles.wrapper, width: "100%" }}>
+          {/* {!route.params.data[route.params.index - 1].data?.id && (<View style={{ ...styles.wrapper, width: "100%" }}>
             {!route.params.data[route.params.index - 1].data?.id && (<View style={styles.fieldSet}>
               <Text style={styles.legend}>Квитанция:</Text>
               <View style={styles.pickerWrapper}>
@@ -223,7 +231,7 @@ function SlotIndex({ route, navigation }) {
                 ))}
               </View>
             </View>)}
-          </View>)}
+          </View>)} */}
           <View style={{ ...styles.wrapper, width: "100%" }}>
             <View style={{ ...styles.fieldSet, minWidth: "100%" }}>
               <Text style={styles.legend}>Примечание</Text>

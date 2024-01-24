@@ -124,8 +124,8 @@ export async function uploadInvocesSlots({
                 formData.append(key, _fields[key])
               }
             }
-            let sklad = responseServer.attributes.customs["custom-99672"] ? responseServer.attributes.customs["custom-99672"][0] : ''
-            let slotNumber = responseServer.attributes.customs["custom-119567"] ? responseServer.attributes.customs["custom-119567"] : ''
+            let sklad = responseServer.attributes.customs[fields.sklad] ? responseServer.attributes.customs[fields.sklad][0] : ''
+            let slotNumber = responseServer.attributes.customs[fields.slotNumber] ? responseServer.attributes.customs[fields.slotNumber] : ''
             const markToImage = await markText({ file: photosSlot[f], text1: slotNumber, text2: sklad });
             formData.append("file", { ...photosSlot[f], uri: markToImage });
             const uploadData = await axios.post('https://storage.yandexcloud.net/salesapiens', formData);

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Login from "./components/Login";
 import Tabs from "./navigations/Tabs";
 import logginStore from "./stores/logginStore";
-import {PermissionsAndroid } from "react-native";
+import {PermissionsAndroid} from "react-native";
 
 export default function App() {
   const { user, getStorage } = logginStore();

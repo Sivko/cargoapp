@@ -30,6 +30,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
   setLoading(true);
   // console.log(scanItems.map(e=>e.slots))
   // return
+  let statuses = [];
   for (let m in scanItems) {
     if (scanItems[m].slots) {
       const items = scanItems[m].slots.filter(e => !e?.uploadStatus);
@@ -48,13 +49,14 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
         tmp.data.attributes.customs[fields["transport"]] = items[i].data.attributes.customs[fields["transport"]];
         tmp.data.attributes.customs[fields["clientCode"]] = items[i].data.attributes.customs[fields["clientCode"]];
         tmp.data.attributes.customs[fields["numberTTN"]] = items[i].data.attributes.customs[fields["numberTTN"]];
-        tmp.data.attributes.customs[fields["scanTSD"]] = items[i]?.data?.attributes?.customs[fields["scanTSD"]]  != "Найдено" ? "Не найдено" : items[i]?.data?.attributes?.customs[fields["scanTSD"]];
+        tmp.data.attributes.customs[fields["scanTSD"]] = items[i]?.data?.attributes?.customs[fields["scanTSD"]] != "Найдено" ? "Не найдено" : items[i]?.data?.attributes?.customs[fields["scanTSD"]];
         // let xx = tmp.data.attributes.customs[fields["scanTSD"]];
         // debugger;
         // tmp.data.relationships?.stage?.data?.id = scanItems[m]?.flight?.data?.id;
         // console.log(tmp);
         // console.log(scanItems[m])
         // return
+        statuses.push(tmp.data.attributes.customs[fields["scanTSD"]]);
         let slotId = tmp?.data?.id
         let responseServer;
         if (slotId) {
@@ -65,44 +67,71 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
           responseServer = res.data.data;
           // console.log("Обновлено", res);
         } else {
-          // try {
-          console.log("добавление");
-          const url = `https://app.salesap.ru/api/v1/deals`;
-          tmp.data.relationships = {
-            user: {
-              data: {
-                type: "users",
-                id: user?.directorId || user.id
-              }
-            },
-            responsible: {
-              data: {
-                type: "users",
-                id: user.id
-              }
-            },
-            deals: {
-              data: [{
-                type: "deals",
-                id: scanItems[m]?.slots[i]?.invoiceId || scanItems[m]?.slots[0]?.invoices[0].id,
-              }]
-            },
-            stage: {
-              data: {
-                type: "deal-stages",
-                id: stagesFirstId.slot,
+          try {
+            console.log("добавление");
+            const url = `https://app.salesap.ru/api/v1/deals`;
+            tmp.data.relationships = {
+              user: {
+                data: {
+                  type: "users",
+                  id: user?.directorId || user.id
+                }
               },
-            },
-          };
-          const res = await axios.post(url, { data: tmp.data }, config(user?.token)).catch(e => setLogsData({ type: "error", status: e }));
-          console.log(res.status, scanItems[m]?.slots[0]?.invoices[0].id);
-          if (res.status >= 400) {
-            setLogsData({ type: "error", status: res.data })
-            continue;
-          }
-          responseServer = res.data.data;
-          slotId = res.data.data.id;
-          // } catch (err) {console.log("не удалось добавить", err); setLogsData({ type: "error", status: err })}
+              responsible: {
+                data: {
+                  type: "users",
+                  id: user.id
+                }
+              },
+              deals: {
+                data: [{
+                  type: "deals",
+                  id: scanItems[m]?.flight?.data?.id,
+                }]
+              },
+              stage: {
+                data: {
+                  type: "deal-stages",
+                  id: stagesFirstId.slot,
+                },
+              },
+            };
+            console.log(JSON.stringify(tmp.data))
+            const res = await axios.post(url, { data: tmp.data }, config()).catch(err => console.log(err));
+            console.log(res.status);
+            if (res.status >= 400) {
+              setLogsData({ type: "error", status: res.data })
+              console.log(res.data)
+              continue;
+            }
+            responseServer = res.data.data;
+            slotId = res.data.data.id;
+          } catch (err) { console.log("не удалось добавить", err); setLogsData({ type: "error", status: err }) }
+        }
+
+        /* ативность об изменении габаритов */
+        console.log(items[i]?.activity)
+        if (items[i]?.activity?.trim()) {
+          console.log("activity update", slotId)
+          await axios.post('https://app.salesap.ru/api/v1/activities', {
+            data: {
+              "type": "activities",
+              "attributes": {
+                "key": "message",
+                "message": items[i]?.activity.trim() + `<br/> Сотрудник: ${user.firstName} ${user.lastName} (${user.email})`,
+                "confirm-read": true,
+                "user-ids": [77292]
+              },
+              "relationships": {
+                "trackable": {
+                  "data": {
+                    "type": "deals",
+                    "id": slotId
+                  }
+                }
+              }
+            }
+          }, config()).catch(err => console.log(err))
         }
         /* загрузка Фото */
         if (items[i].photos) {
@@ -143,79 +172,18 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
         resetStoragescanItems(scanItems);
       }
     }
-  }
-  //обновление Рейсов и Квитанций
-  for (let m in scanItems) {
-    if (scanItems[m].slots) {
-      const tmpInvoices = scanItems[m].slots.map((e) => ({ id: e.invoiceId, status: e.data.attributes.customs[fields["scanTSD"]] != "Найдено" ? "Не найдено" : "Найдено" }));
-      let invoicesUnicId = tmpInvoices.filter((value, index, self) =>
-        index === self.findIndex((t) => (
-          t.id === value.id
-        ))
-      );
-      let invoicesStatus = []
-      for (let x in invoicesUnicId) {
-        const id = invoicesUnicId[x].id
-        invoicesStatus.push({ id: id, statuses: tmpInvoices.filter(e => e.id == id).map(e => e.status) });
-      }
-      let errors = []
-      for (let h in invoicesStatus) {
-        if (invoicesStatus[h]?.statuses?.length) {
-          // console.log("UPD")
-          if (invoicesStatus[h]?.statuses.includes("Не найдено")) {
-            // console.log("Error")
-            await axios.patch(`https://app.salesap.ru/api/v1/deals/${invoicesStatus[h].id}`, { data: { type: 'deals', id: invoicesStatus[h].id, attributes: { customs: { [fields["scanTSD"]]: "Ошибка" } } } }, config(user?.token))
-            errors.push(true)
-          } else {
-            // console.log("Success")
-            await axios.patch(`https://app.salesap.ru/api/v1/deals/${invoicesStatus[h].id}`, { data: { type: 'deals', id: invoicesStatus[h].id, attributes: { customs: { [fields["scanTSD"]]: "Успешно" } } } }, config(user?.token))
-          }
-        }
-      }
-      if (errors.length) {
-        // console.log("error Flight")
-        await axios.patch(`https://app.salesap.ru/api/v1/deals/${scanItems[m].flight.data.id}`, { data: { type: 'deals', id: scanItems[m].flight.data.id, attributes: { customs: { [fields["scanTSD"]]: "Ошибка" } } } }, config(user?.token))
-      } else {
-        // console.log("Success flight")
-        await axios.patch(`https://app.salesap.ru/api/v1/deals/${scanItems[m].flight.data.id}`, { data: { type: 'deals', id: scanItems[m].flight.data.id, attributes: { customs: { [fields["scanTSD"]]: "Успешно" } } } }, config(user?.token))
-      }
 
-
-      // console.log(tmpInvoices, "tmpInvoices");
-
-      // let errorStatusSlots = scanItems[m].slots.filter(e => e.data.attributes.customs[fields["scanTSD"]] != "Найдено");
-      // console.log(errorStatusSlots, "errorStatusSlots")
-      // let successStatusSlots = scanItems[m].slots.filter(e => e.data.attributes.customs[fields["scanTSD"]] == "Найдено");
-      // console.log(successStatusSlots, "successStatusSlots")
-      // let invoicesUpdateToError = [];
-      // let invoicesUpdateToSuccess = [];
-      // for (let x in errorStatusSlots) {
-      //   let id = errorStatusSlots[x].invoiceId;
-      //   if (!invoicesUpdateToError.includes(id)) {
-      //     invoicesUpdateToError.push(id);
-      //   }
-      // }
-      // for (let x in successStatusSlots) {
-      //   let id = errorStatusSlots[x].invoiceId;
-      //   if (!invoicesUpdateToSuccess.includes(id)) {
-      //     invoicesUpdateToSuccess.push(id);
-      //   }
-      // }
-      // console.log(invoicesUpdateToError, "установлю ошибку у этих квитанций");
-      // console.log(invoicesUpdateToError, "установлю успешно у этих квитанций");
-      // for (let b in invoicesUpdateToError) {
-      //   await axios.patch(`https://app.salesap.ru/api/v1/deals/${invoicesUpdateToError[b]}`, { data: { type: 'deals', id: invoicesUpdateToError[b], attributes: { customs: { [fields["scanTSD"]]: "Ошибка" } } } }, config(user?.token))
-      // }
-      // for (let b in invoicesUpdateToSuccess) {
-      //   await axios.patch(`https://app.salesap.ru/api/v1/deals/${invoicesUpdateToSuccess[b]}`, { data: { type: 'deals', id: invoicesUpdateToSuccess[b], attributes: { customs: { [fields["scanTSD"]]: "Успешно" } } } }, config(user?.token))
-      // }
-
-      // if (invoicesUpdateToError.length) {
-      //   await axios.patch(`https://app.salesap.ru/api/v1/deals/${scanItems[m].flight.data.id}`, { data: { type: 'deals', id: scanItems[m].flight.data.id, attributes: { customs: { [fields["scanTSD"]]: "Ошибка" } } } }, config(user?.token))
-      // } else {
-      //   await axios.patch(`https://app.salesap.ru/api/v1/deals/${scanItems[m].flight.data.id}`, { data: { type: 'deals', id: scanItems[m].flight.data.id, attributes: { customs: { [fields["scanTSD"]]: "Успешно" } } } }, config(user?.token))
-      // }
+    //обновление Рейсов
+    if (statuses.includes("Не найдено") || statuses.includes("Ошибка")) {
+      console.log("error Flight")
+      await axios.patch(`https://app.salesap.ru/api/v1/deals/${scanItems[m].flight.data.id}`, { data: { type: 'deals', id: scanItems[m].flight.data.id, attributes: { customs: { [fields["scanTSD"]]: "Ошибка" } } } }, config(user?.token))
+    } else if (statuses.length) {
+      console.log("Success flight")
+      await axios.patch(`https://app.salesap.ru/api/v1/deals/${scanItems[m].flight.data.id}`, { data: { type: 'deals', id: scanItems[m].flight.data.id, attributes: { customs: { [fields["scanTSD"]]: "Успешно" } } } }, config(user?.token))
     }
+
+    statuses = [];
+
   }
   setLoading(false);
 };

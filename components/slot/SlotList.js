@@ -44,7 +44,7 @@ export default function SlotList({ data, setData, navigation }) {
           {el.item?.photos && el.item?.photos[0] && (<View style={styles.docItem}>
             <Image style={styles.preview} source={{ uri: el.item.photos[0].fileCopyUri }} />
           </View>) || <AntDesign name="picture" size={70} color="#d3d3d3" />}
-          <Text style={{fontSize: 8, textAlign: 'right', paddingRight: 20}}>{el.item?.data?.id}</Text>
+          <Text style={{ fontSize: 8, textAlign: 'right', paddingRight: 20 }}>{el.item?.data?.id}</Text>
         </View>
         <View style={styles.info}>
           <Text>Название: {el.item?.data?.attributes?.name}</Text>
@@ -64,9 +64,9 @@ export default function SlotList({ data, setData, navigation }) {
           <Text>
             ШК: {el.item?.data?.attributes?.customs[fields["barcode"]]}
           </Text>
-          <Text>
+          {/* <Text>
             КВ: {!el.item?.invoiceId ? "" : el.item?.invoices.filter(e => e?.id === el.item?.invoiceId)[0]?.name}
-          </Text>
+          </Text> */}
           {el.item?.data?.attributes?.customs[fields["scanTSD"]] ==
             "Найдено" && (
               <Text>

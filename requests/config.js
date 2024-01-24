@@ -35,14 +35,19 @@ export const fields = {
   width: "custom-114633",
   height: "custom-114634",
   weight: "custom-99659",
-  transport: "custom-99663",
+  // transport: "custom-99663",
+  transport: "custom-124250",
   barcode: "custom-114979",
   clientCode: "custom-102382",
   numberTTN: "custom-115383",
-  scanTSD: "custom-99670",
+  // scanTSD: "custom-99670",
+  scanTSD: "custom-124252",
   userToken: "custom-120321",
   userPassword: "custom-120322",
-  directorId: "custom-120654"
+  directorId: "custom-120654",
+  //sklad: 99672
+  sklad: "custom-124267",
+  slotNumber: "custom-119567"
 };
 
 export default config;
