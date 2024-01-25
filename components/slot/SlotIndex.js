@@ -62,11 +62,13 @@ function SlotIndex({ route, navigation }) {
       slots[route.params.index - 1].photos = photos;
 
       const activity = `
-      ${length !== route.params.data[route.params.index - 1].data?.attributes?.customs[fields["length"]] ? "Изменена Длина с " + route.params.data[route.params.index - 1].data?.attributes?.customs[fields["length"]] + " на " + length : ""}
-      ${width !== route.params.data[route.params.index - 1].data?.attributes?.customs[fields["width"]] ? "Изменена Ширина с " + route.params.data[route.params.index - 1].data?.attributes?.customs[fields["width"]] + " на " + width : ""}
-      ${height !== route.params.data[route.params.index - 1].data?.attributes?.customs[fields["height"]] ? "Изменена Высота с " + route.params.data[route.params.index - 1].data?.attributes?.customs[fields["height"]] + " на " + length : ""}        
+      ${length !== route.params.data[route.params.index - 1].data?.attributes?.customs[fields["length"]] ? "Измененo Длина с " + route.params.data[route.params.index - 1].data?.attributes?.customs[fields["length"]] + " на " + length : ""}
+      ${width !== route.params.data[route.params.index - 1].data?.attributes?.customs[fields["width"]] ? "Измененo Ширина с " + route.params.data[route.params.index - 1].data?.attributes?.customs[fields["width"]] + " на " + width : ""}
+      ${height !== route.params.data[route.params.index - 1].data?.attributes?.customs[fields["height"]] ? "Измененo Высота с " + route.params.data[route.params.index - 1].data?.attributes?.customs[fields["height"]] + " на " + height : ""}        
+      ${weight !== route.params.data[route.params.index - 1].data?.attributes?.customs[fields["weight"]] ? "Измененo Вес с " + route.params.data[route.params.index - 1].data?.attributes?.customs[fields["weight"]] + " на " + weight : ""}        
     `
       slots[route.params.index - 1].activity = activity;
+      // console.log(route.params.data[route.params.index - 1].data?.attributes?.customs[fields["scanTSD"]])
       return slots;
     });
   }, [length, width, height, transport, weight, description, barcode, uploadStatus, photos]);

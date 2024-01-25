@@ -33,6 +33,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
   let statuses = [];
   for (let m in scanItems) {
     if (scanItems[m].slots) {
+      statuses = scanItems[m].slots.map((e)=>e.data.attributes.customs[fields["scanTSD"]]);
       const items = scanItems[m].slots.filter(e => !e?.uploadStatus);
       for (let i in items) {
         // console.log("Upload", items[i]);
@@ -49,14 +50,15 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
         tmp.data.attributes.customs[fields["transport"]] = items[i].data.attributes.customs[fields["transport"]];
         tmp.data.attributes.customs[fields["clientCode"]] = items[i].data.attributes.customs[fields["clientCode"]];
         tmp.data.attributes.customs[fields["numberTTN"]] = items[i].data.attributes.customs[fields["numberTTN"]];
-        tmp.data.attributes.customs[fields["scanTSD"]] = items[i]?.data?.attributes?.customs[fields["scanTSD"]] != "Найдено" ? "Не найдено" : items[i]?.data?.attributes?.customs[fields["scanTSD"]];
-        // let xx = tmp.data.attributes.customs[fields["scanTSD"]];
-        // debugger;
-        // tmp.data.relationships?.stage?.data?.id = scanItems[m]?.flight?.data?.id;
-        // console.log(tmp);
-        // console.log(scanItems[m])
-        // return
-        statuses.push(tmp.data.attributes.customs[fields["scanTSD"]]);
+        // tmp.data.attributes.customs[fields["scanTSD"]] = items[i]?.data?.attributes?.customs[fields["scanTSD"]] != "Найдено" ? "Не найдено" : items[i]?.data?.attributes?.customs[fields["scanTSD"]];
+
+        if (items[i]?.data?.attributes?.customs[fields["scanTSD"]].includes("Не найдено"))
+          tmp.data.attributes.customs[fields["scanTSD"]] = "Не найдено"
+        else if (items[i]?.data?.attributes?.customs[fields["scanTSD"]].includes("Ошибка"))
+          tmp.data.attributes.customs[fields["scanTSD"]] = "Ошибка"
+        else tmp.data.attributes.customs[fields["scanTSD"]] = items[i].data.attributes.customs[fields["scanTSD"]]
+          
+
         let slotId = tmp?.data?.id
         let responseServer;
         if (slotId) {
@@ -174,6 +176,7 @@ export default async function uploadFlights({ resetStoragescanItems, scanItems, 
     }
 
     //обновление Рейсов
+    console.log("statuses", statuses)
     if (statuses.includes("Не найдено") || statuses.includes("Ошибка")) {
       console.log("error Flight")
       await axios.patch(`https://app.salesap.ru/api/v1/deals/${scanItems[m].flight.data.id}`, { data: { type: 'deals', id: scanItems[m].flight.data.id, attributes: { customs: { [fields["scanTSD"]]: "Ошибка" } } } }, config(user?.token))

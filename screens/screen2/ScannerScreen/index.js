@@ -44,6 +44,7 @@ export function ScannerScreen({ navigation, route }) {
       const elem = find[0];
       if (elem.data?.id) {
         elem.data.attributes.customs[fields["scanTSD"]] = "Найдено";
+        elem.uploadStatus = false;
         setSlot([elem, ...slot.filter((e) => e.data.id !== find[0].data.id)]);
         setBarcodeInput("");
         // resetStorageInvocesToUpload([elem, ...slot.filter((e) => e.data.id !== find[0].data.id)]);

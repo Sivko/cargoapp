@@ -76,7 +76,7 @@ export default function SlotList({ data, setData, navigation }) {
           {el.item?.data?.attributes?.customs[fields["scanTSD"]] !=
             "Найдено" && (
               <Text>
-                Статус: <Text style={{ color: "red" }}>Не найдено</Text>
+                Статус: <Text style={{ color: "red" }}>{el.item?.data?.attributes?.customs[fields["scanTSD"]]}</Text>
               </Text>
             )}
         </View>

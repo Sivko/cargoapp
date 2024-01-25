@@ -3,6 +3,7 @@
 import axios from "axios";
 
 import config, { stagesCategories, timeout } from "@/requests/config";
+import { fields } from "../config";
 var RNFS = require('react-native-fs');
 
 // const { idFlightsToDownloads } = scanStore();
@@ -29,9 +30,10 @@ export default async function downloadSlotInFlights({ idFlightsToDownloads, rese
         const isSlotInTransport = await axios.get(`https://app.salesap.ru/api/v1/deals/${childrenDeals[x]}/relationships/stage-category`, config(user?.token));
         if (isSlotInTransport?.data?.data?.id === stagesCategories.slot) {
           const slotData = await axios.get(`https://app.salesap.ru/api/v1/deals/${childrenDeals[x]}`, config(user?.token));
-          const _slotData = slotData.data.data;
+          let _slotData = slotData.data.data;
           if (_slotData?.id) {
             if (!_slotData?.attributes["archived-at"] && !_slotData?.attributes["discarded-at"]) {
+              _slotData.attributes.customs[fields["scanTSD"]] = _slotData.attributes.customs[fields["scanTSD"]].length ? _slotData.attributes.customs[fields["scanTSD"]][0] : "Не найдено";
               let tmpPhotos = [];
               const photos = await axios.get(`https://app.salesap.ru/api/v1/documents?filter[entity_type]=Deal&filter[entity_id]=${_slotData.id}`, config(user?.token));
               if (photos.data?.data?.length) {

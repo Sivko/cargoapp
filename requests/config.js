@@ -1,6 +1,8 @@
 // import logginStore from "@/stores/logginStore";
 
 // const { user, loggin } = logginStore();
+export const version = "1.1";
+export const constantLinkToApp = "740";
 
 export const config = (token = 'mUYmfdF5Hr0zUC9b3WLmR94p_DH4-GPkdQ42FmBZpv0') => {
   return {
